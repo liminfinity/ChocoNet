@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "husky": "^9.1.6"
+  },
+  "scripts": {
+    "lint:backend": "cd backend && npx lint-staged --allow-empty",
+    "prepare": "husky"
+  }
+}
