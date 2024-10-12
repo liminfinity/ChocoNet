@@ -1,12 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MulterModule } from '@nestjs/platform-express';
-import { MulterConfigService } from './common/services';
+import { DatabaseModule } from './common/modules';
 
 @Module({
-  imports: [
-    MulterModule.registerAsync({
-      useClass: MulterConfigService,
-    }),
-  ],
+  imports: [DatabaseModule],
 })
 export class AppModule {}
