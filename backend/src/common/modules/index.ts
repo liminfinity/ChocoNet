@@ -1,2 +1,2 @@
-export { HashModule } from './hash/hash.module';
-export { DatabaseModule } from './database/database.module';
+export { HashModule, HashService } from './hash';
+export { DatabaseModule, DatabaseService } from './database';

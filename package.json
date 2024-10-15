@@ -1,4 +1,8 @@
 {
+  "dependencies": {
+    "@nestjs/mapped-types": "*",
+    "class-validator": "^0.14.1"
+  },
   "devDependencies": {
     "husky": "^9.1.6"
   },
