@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { RefreshTokenRepository } from "../repositories";
-import { SaveRefreshTokenRequest, SaveRefreshTokenResponse } from "../types";
+import { RefreshTokenRepository } from "../../refreshToken/repositories";
+import { SaveRefreshTokenRequest, SaveRefreshTokenResponse } from "../../refreshToken/types";
 
 
 @Injectable()

@@ -5,9 +5,9 @@ import { HashModule } from '@/common/modules';
 import { JwtStrategy } from './strategies';
 import { AuthService } from './services';
 import { AuthController } from './controllers';
-import { AuthRepository } from './repositories';
 import { ENV } from './constants';
 import { RefreshTokenModule } from '../refreshToken';
+import { UserModule } from '../user';
 
 @Module({
   imports: [
@@ -17,8 +17,9 @@ import { RefreshTokenModule } from '../refreshToken';
       secret: ENV.JWT_SECRET,
     }),
     RefreshTokenModule,
+    UserModule,
   ],
-  providers: [AuthRepository, AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

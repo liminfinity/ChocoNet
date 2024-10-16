@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { LoginDto } from '../dto';
 import { HashService } from '@/common/modules';
-import { AuthRepository } from '../repositories';
 import type { LoginServiceResponse } from './types';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../strategies';
@@ -11,18 +10,19 @@ import {
   JWT_REFRESH_TOKEN_EXPIRATION_TIME,
 } from '../constants';
 import { RefreshTokenService } from '@/modules/refreshToken';
+import { UserService } from '@/modules/user';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashService: HashService,
-    private readonly authRepository: AuthRepository,
+    private readonly userSerivce: UserService,
     private readonly jwtService: JwtService,
     private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<LoginServiceResponse> {
-    const user = await this.authRepository.findByEmail(loginDto.email);
+    const user = await this.userSerivce.findByEmail(loginDto.email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
