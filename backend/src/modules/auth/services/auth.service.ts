@@ -10,6 +10,7 @@ import {
   JWT_ACCESS_TOKEN_EXPIRATION_TIME,
   JWT_REFRESH_TOKEN_EXPIRATION_TIME,
 } from '../constants';
+import { RefreshTokenService } from '@/modules/refreshToken';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     private readonly hashService: HashService,
     private readonly authRepository: AuthRepository,
     private readonly jwtService: JwtService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<LoginServiceResponse> {
@@ -47,6 +49,11 @@ export class AuthService {
         issuer: ENV.JWT_ISSUER,
       }),
     ]);
+
+    await this.refreshTokenService.save({
+      userId: user.id,
+      token: refreshToken,
+    });
 
     return {
       user: userWithoutPassword,

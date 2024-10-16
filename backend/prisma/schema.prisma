@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(uuid()) @db.Uuid
-  email       String       @unique @db.VarChar(255)
-  password    String
-  firstName   String       @map("first_name")
-  lastName    String       @map("last_name")
-  phone       String
-  geolocation Geolocation?
-  about       String?
-  avatars     Avatars[]
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  id            String         @id @default(uuid()) @db.Uuid
+  email         String         @unique @db.VarChar(255)
+  password      String
+  firstName     String         @map("first_name")
+  lastName      String         @map("last_name")
+  phone         String
+  geolocation   Geolocation?
+  about         String?
+  avatars       Avatar[]
+  refreshTokens RefreshToken[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -27,7 +28,7 @@ model Geolocation {
   id        String   @id @default(uuid()) @db.Uuid
   lat       Float
   lng       Float
-  userId    String   @unique @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -35,13 +36,24 @@ model Geolocation {
   @@map("geolocations")
 }
 
-model Avatars {
+model Avatar {
   id        String   @id @default(uuid()) @db.Uuid
   path      String   @unique
-  userId    String   @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("avatars")
+}
+
+model RefreshToken {
+  id     String @id @default(uuid()) @db.Uuid
+  token  String
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([id, token])
+  @@map("refresh_tokens")
 }

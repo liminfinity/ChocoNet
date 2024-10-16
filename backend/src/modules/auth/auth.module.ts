@@ -7,6 +7,7 @@ import { AuthService } from './services';
 import { AuthController } from './controllers';
 import { AuthRepository } from './repositories';
 import { ENV } from './constants';
+import { RefreshTokenModule } from '../refreshToken';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ENV } from './constants';
     JwtModule.register({
       secret: ENV.JWT_SECRET,
     }),
+    RefreshTokenModule,
   ],
   providers: [AuthRepository, AuthService, JwtStrategy],
   controllers: [AuthController],
