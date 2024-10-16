@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { LoginDto } from '../dto';
-import { HashService } from 'src/common/modules';
+import { HashService } from '@/common/modules';
 import { AuthRepository } from '../repositories';
 import type { LoginServiceResponse } from './types';
 import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from '../strategies';
+import { JWT_ACCESS_TOKEN_EXPIRATION_TIME, JWT_REFRESH_TOKEN_EXPIRATION_TIME } from '../constants';
 
 @Injectable()
 export class AuthService {
@@ -14,34 +16,36 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto): Promise<LoginServiceResponse> {
-    const user = await this.authRepository.login(loginDto);
+    const user = await this.authRepository.findByEmail(loginDto.email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const isEqual = await this.hashService.compare(loginDto.password, user.password);
+    const { password, ...userWithoutPassword } = user;
+
+    const isEqual = await this.hashService.compare(loginDto.password, password);
     if (!isEqual) {
       throw new NotFoundException('User not found');
     }
 
-    const jwtPayload = {
+    const jwtPayload: JwtPayload = {
       sub: user.id,
       email: user.email,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
-        expiresIn: '15m',
+        expiresIn: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
         issuer: process.env.JWT_ISSUER,
       }),
       this.jwtService.signAsync(jwtPayload, {
-        expiresIn: '7d',
+        expiresIn: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
         issuer: process.env.JWT_ISSUER,
       }),
     ]);
 
     return {
-      ...user,
+      user: userWithoutPassword,
       accessToken,
       refreshToken,
     };

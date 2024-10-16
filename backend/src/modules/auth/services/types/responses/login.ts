@@ -1,6 +1,7 @@
 import type { User } from '@prisma/client';
 
-export type LoginServiceResponse = Pick<User, 'id' | 'email' | 'password'> & {
+export type LoginServiceResponse = {
+  user: Omit<User, 'password'>;
   accessToken: string;
   refreshToken: string;
 };
