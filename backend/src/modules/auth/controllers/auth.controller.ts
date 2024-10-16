@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { LoginDto } from '../dto';
 import { AuthService } from '../services';
 import type { LoginControllerResponse } from './types';
@@ -38,6 +48,17 @@ export class AuthController {
     }
 
     return user;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+    const refreshToken: string = req.signedCookies[COOKIES.REFRESH_TOKEN];
+
+    await this.authService.logout(refreshToken);
+
+    res.clearCookie(COOKIES.ACCESS_TOKEN);
+    res.clearCookie(COOKIES.REFRESH_TOKEN);
   }
 
   @UseGuards(JwtAuthGuard)

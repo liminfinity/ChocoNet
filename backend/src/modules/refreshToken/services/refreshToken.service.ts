@@ -12,5 +12,8 @@ export class RefreshTokenService {
   async save(refreshTokenDto: SaveRefreshTokenRequest): Promise<SaveRefreshTokenResponse> {
     return this.refreshTokenRepository.save(refreshTokenDto);
   }
-  
+
+  async deleteByToken(refreshToken: string): Promise<void> {
+    return this.refreshTokenRepository.deleteByToken(refreshToken);
+  }
 }

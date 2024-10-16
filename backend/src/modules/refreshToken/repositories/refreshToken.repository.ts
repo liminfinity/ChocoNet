@@ -14,4 +14,12 @@ export class RefreshTokenRepository {
       },
     });
   }
+
+  async deleteByToken(refreshToken: string): Promise<void> {
+    await this.databaseService.refreshToken.delete({
+      where: {
+        token: refreshToken,
+      },
+    });
+  }
 }

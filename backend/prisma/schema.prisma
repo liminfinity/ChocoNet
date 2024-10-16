@@ -49,11 +49,10 @@ model Avatar {
 
 model RefreshToken {
   id     String @id @default(uuid()) @db.Uuid
-  token  String
+  token  String @unique
   userId String @map("user_id") @db.Uuid
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([id, token])
   @@map("refresh_tokens")
 }
