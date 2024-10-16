@@ -1,0 +1,1 @@
+export { extractAccessTokenFromCookie } from './extractAccessTokenFromCookie';

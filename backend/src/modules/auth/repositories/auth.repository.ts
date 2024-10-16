@@ -17,4 +17,16 @@ export class AuthRepository {
       },
     });
   }
+
+  async findById(userId: string): Promise<LoginReposityResponse | null> {
+    return this.databaseService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        avatars: true,
+        geolocation: true,
+      },
+    });
+  }
 }

@@ -1,9 +1,7 @@
 import type { User } from '@prisma/client';
-import { IsBoolean, IsEmail, IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+import { IsBoolean, IsEmail, IsStrongPassword } from 'class-validator';
 
 export class LoginDto implements Pick<User, 'email' | 'password'> {
-  @IsNotEmpty()
-  @IsString()
   @IsEmail()
   email!: string;
 
@@ -20,11 +18,8 @@ export class LoginDto implements Pick<User, 'email' | 'password'> {
         'Password should be at least 8 characters long and contain at least one number and one symbol',
     },
   )
-  @IsNotEmpty()
-  @IsString()
   password!: string;
 
-  @IsNotEmpty()
   @IsBoolean()
   rememberMe!: boolean;
 }

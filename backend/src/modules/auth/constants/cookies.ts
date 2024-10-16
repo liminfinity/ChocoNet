@@ -6,6 +6,5 @@ export const COOKIES = {
 };
 
 export const COOKIE_OPTIONS: CookieOptions = {
-  httpOnly: true,
   sameSite: 'strict',
 };

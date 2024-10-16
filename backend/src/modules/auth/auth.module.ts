@@ -6,13 +6,14 @@ import { JwtStrategy } from './strategies';
 import { AuthService } from './services';
 import { AuthController } from './controllers';
 import { AuthRepository } from './repositories';
+import { ENV } from './constants';
 
 @Module({
   imports: [
     HashModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: ENV.JWT_SECRET,
     }),
   ],
   providers: [AuthRepository, AuthService, JwtStrategy],
