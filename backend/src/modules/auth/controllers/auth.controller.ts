@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { LoginDto } from '../dto';
 import { AuthService } from '../services';
-import type { LoginControllerResponse } from './types';
+import type { LoginControllerResponse, RefreshControllerResponse } from './types';
 import type { Request, Response } from 'express';
 import {
   COOKIE_OPTIONS,
@@ -26,6 +26,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -59,6 +60,32 @@ export class AuthController {
 
     res.clearCookie(COOKIES.ACCESS_TOKEN);
     res.clearCookie(COOKIES.REFRESH_TOKEN);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<RefreshControllerResponse> {
+    const currentRefreshToken: string | undefined = req.signedCookies[COOKIES.REFRESH_TOKEN];
+
+    const { accessToken, refreshToken, user } = await this.authService.refresh(currentRefreshToken);
+
+    res.cookie(COOKIES.ACCESS_TOKEN, accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+      signed: true,
+    });
+
+    res.cookie(COOKIES.REFRESH_TOKEN, refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+      httpOnly: true,
+      signed: true,
+    });
+
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)

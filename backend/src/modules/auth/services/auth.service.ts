@@ -1,24 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import type { LoginDto } from '../dto';
 import { HashService } from '@/common/modules';
-import type { LoginServiceResponse } from './types';
-import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from '../strategies';
-import {
-  ENV,
-  JWT_ACCESS_TOKEN_EXPIRATION_TIME,
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME,
-} from '../constants';
-import { RefreshTokenService } from '@/modules/refreshToken';
+import type { LoginServiceResponse, RefreshServiceResponse } from './types';
+import { JwtPayload } from '../modules/jwtTokens';
+import { JwtTokensService } from '@/modules/auth/modules/jwtTokens';
 import { UserService } from '@/modules/user';
+import { TokenExpiredError } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashService: HashService,
     private readonly userSerivce: UserService,
-    private readonly jwtService: JwtService,
-    private readonly refreshTokenService: RefreshTokenService,
+    private readonly jwtTokensService: JwtTokensService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<LoginServiceResponse> {
@@ -39,18 +33,9 @@ export class AuthService {
       email: user.email,
     };
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(jwtPayload, {
-        expiresIn: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
-        issuer: ENV.JWT_ISSUER,
-      }),
-      this.jwtService.signAsync(jwtPayload, {
-        expiresIn: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
-        issuer: ENV.JWT_ISSUER,
-      }),
-    ]);
+    const { accessToken, refreshToken } = await this.jwtTokensService.generateTokens(jwtPayload);
 
-    await this.refreshTokenService.save({
+    await this.jwtTokensService.saveRefreshToken({
       userId: user.id,
       token: refreshToken,
     });
@@ -63,6 +48,45 @@ export class AuthService {
   }
 
   async logout(refreshToken: string): Promise<void> {
-    return this.refreshTokenService.deleteByToken(refreshToken);
+    return this.jwtTokensService.deleteRefreshToken(refreshToken);
+  }
+
+  async refresh(currentRefreshToken?: string): Promise<RefreshServiceResponse> {
+    if (!currentRefreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+
+    try {
+      const { sub, email } = await this.jwtTokensService.verifyRefreshToken(currentRefreshToken);
+
+      const user = await this.userSerivce.findById(sub);
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      const { accessToken, refreshToken } = await this.jwtTokensService.generateTokens({
+        sub,
+        email,
+      });
+
+      await this.jwtTokensService.updateRefreshToken({
+        oldToken: currentRefreshToken,
+        newToken: refreshToken,
+      });
+
+      return {
+        accessToken,
+        refreshToken,
+        user,
+      };
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        await this.jwtTokensService.deleteRefreshToken(currentRefreshToken);
+        throw new UnauthorizedException(error.message);
+      } else {
+        throw new UnauthorizedException();
+      }
+    }
   }
 }

@@ -1,1 +1,1 @@
-export type { LoginServiceResponse } from './responses/login';
+export type { LoginServiceResponse, RefreshServiceResponse } from './responses';
