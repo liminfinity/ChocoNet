@@ -29,10 +29,7 @@ export class JwtTokensRepository {
     });
   }
 
-  async updateRefreshToken({
-    oldToken,
-    newToken,
-  }: UpdateRefreshTokenRequest): Promise<void> {
+  async updateRefreshToken({ oldToken, newToken }: UpdateRefreshTokenRequest): Promise<void> {
     await this.databaseService.refreshToken.update({
       where: {
         token: oldToken,

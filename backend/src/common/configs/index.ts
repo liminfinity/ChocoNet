@@ -1,0 +1,1 @@
+export { serveStaticConfig } from './serveStatic';

@@ -1,1 +1,1 @@
-export { MulterConfigService } from './mutler/multer.service';
+export { MulterConfigService } from './mutler';

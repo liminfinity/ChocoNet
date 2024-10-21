@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import type { MulterModuleOptions, MulterOptionsFactory } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import path from 'node:path';
+import { createDestination, createFilename } from './lib';
+import { FILE_LIMITS } from './multer.constants';
 
 @Injectable()
 export class MulterConfigService implements MulterOptionsFactory {
   createMulterOptions(): Promise<MulterModuleOptions> | MulterModuleOptions {
     return {
       storage: diskStorage({
-        destination: path.resolve('backend', 'uploads'),
+        destination: createDestination,
+        filename: createFilename,
       }),
+      limits: FILE_LIMITS,
     };
   }
 }

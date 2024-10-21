@@ -6,6 +6,8 @@ import { AuthService } from './services';
 import { AuthController } from './controllers';
 import { JwtTokensModule } from './modules';
 import { UserModule } from '../user';
+import { MulterModule } from '@nestjs/platform-express';
+import { MulterConfigService } from '@/common/services';
 
 @Module({
   imports: [
@@ -13,6 +15,9 @@ import { UserModule } from '../user';
     PassportModule,
     JwtTokensModule,
     UserModule,
+    MulterModule.registerAsync({
+      useClass: MulterConfigService,
+    }),
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

@@ -7,7 +7,9 @@ import {
   Post,
   Req,
   Res,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { LoginDto } from '../dto';
 import { AuthService } from '../services';
@@ -20,6 +22,7 @@ import {
   JWT_REFRESH_TOKEN_EXPIRATION_TIME,
 } from '../constants';
 import { JwtAuthGuard } from '../guards';
+import { AvatarsInterceptor } from '@/modules/user/interceptors';
 
 @Controller('auth')
 export class AuthController {
@@ -88,12 +91,19 @@ export class AuthController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('ping')
+  @UseGuards(JwtAuthGuard)
   async ping(@Req() req: Request): Promise<{ message: 'pong' }> {
     console.log(req.user);
     return {
       message: 'pong',
     };
+  }
+
+  @Post('uploads')
+  @UseInterceptors(AvatarsInterceptor)
+  async uploads(@UploadedFiles() avatars: Express.Multer.File[]): Promise<void> {
+    console.log(avatars.map((avatar) => avatar.filename));
+    console.log(avatars[0]);
   }
 }
