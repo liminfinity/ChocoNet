@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { JwtTokensRepository } from '../repositories';
+import { JwtTokenRepository } from '../repositories';
 import {
   SaveRefreshTokenRequest,
   SaveRefreshTokenResponse,
@@ -15,23 +15,23 @@ import type { GenerateTokensResponse } from './types';
 import { millisecondsToSeconds } from '@/common/lib';
 
 @Injectable()
-export class JwtTokensService {
+export class JwtTokenService {
   constructor(
-    private readonly jwtTokensRepository: JwtTokensRepository,
+    private readonly jwtTokenRepository: JwtTokenRepository,
     private readonly jwtService: JwtService,
   ) {}
 
   async saveRefreshToken(
     refreshTokenDto: SaveRefreshTokenRequest,
   ): Promise<SaveRefreshTokenResponse> {
-    return this.jwtTokensRepository.saveRefreshToken(refreshTokenDto);
+    return this.jwtTokenRepository.saveRefreshToken(refreshTokenDto);
   }
   async deleteRefreshToken(refreshToken: string): Promise<void> {
-    return this.jwtTokensRepository.deleteRefreshToken(refreshToken);
+    return this.jwtTokenRepository.deleteRefreshToken(refreshToken);
   }
 
   async updateRefreshToken(updateRefreshTokenDto: UpdateRefreshTokenRequest): Promise<void> {
-    return this.jwtTokensRepository.updateRefreshToken(updateRefreshTokenDto);
+    return this.jwtTokenRepository.updateRefreshToken(updateRefreshTokenDto);
   }
 
   async generateRefreshToken(payload: JwtPayload): Promise<string> {

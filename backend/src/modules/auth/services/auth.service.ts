@@ -1,18 +1,26 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import type { LoginDto } from '../dto';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { LoginDto, RegisterDto } from '../dto';
 import { HashService } from '@/common/modules';
 import type { LoginServiceResponse, RefreshServiceResponse } from './types';
-import { JwtPayload } from '../modules/jwtTokens';
-import { JwtTokensService } from '@/modules/auth/modules/jwtTokens';
+import { JwtPayload } from '../modules/jwtToken';
+import { JwtTokenService } from '../modules/jwtToken';
 import { UserService } from '@/modules/user';
 import { TokenExpiredError } from '@nestjs/jwt';
+import { VerificationCodeService } from '../modules/verificationCode';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashService: HashService,
     private readonly userSerivce: UserService,
-    private readonly jwtTokensService: JwtTokensService,
+    private readonly jwtTokenService: JwtTokenService,
+    private readonly verificationCodeService: VerificationCodeService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<LoginServiceResponse> {
@@ -28,14 +36,20 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
+    const isConfirmed = await this.verificationCodeService.isEmailConfirmed(user.email);
+
+    if (!isConfirmed) {
+      throw new ForbiddenException('Email not confirmed');
+    }
+
     const jwtPayload: JwtPayload = {
       sub: user.id,
       email: user.email,
     };
 
-    const { accessToken, refreshToken } = await this.jwtTokensService.generateTokens(jwtPayload);
+    const { accessToken, refreshToken } = await this.jwtTokenService.generateTokens(jwtPayload);
 
-    await this.jwtTokensService.saveRefreshToken({
+    await this.jwtTokenService.saveRefreshToken({
       userId: user.id,
       token: refreshToken,
     });
@@ -48,7 +62,7 @@ export class AuthService {
   }
 
   async logout(refreshToken: string): Promise<void> {
-    return this.jwtTokensService.deleteRefreshToken(refreshToken);
+    return this.jwtTokenService.deleteRefreshToken(refreshToken);
   }
 
   async refresh(currentRefreshToken?: string): Promise<RefreshServiceResponse> {
@@ -57,7 +71,7 @@ export class AuthService {
     }
 
     try {
-      const { sub, email } = await this.jwtTokensService.verifyRefreshToken(currentRefreshToken);
+      const { sub, email } = await this.jwtTokenService.verifyRefreshToken(currentRefreshToken);
 
       const user = await this.userSerivce.findById(sub);
 
@@ -65,12 +79,18 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
-      const { accessToken, refreshToken } = await this.jwtTokensService.generateTokens({
+      const isConfirmed = await this.verificationCodeService.isEmailConfirmed(user.email);
+
+      if (!isConfirmed) {
+        throw new ForbiddenException('Email not confirmed');
+      }
+
+      const { accessToken, refreshToken } = await this.jwtTokenService.generateTokens({
         sub,
         email,
       });
 
-      await this.jwtTokensService.updateRefreshToken({
+      await this.jwtTokenService.updateRefreshToken({
         oldToken: currentRefreshToken,
         newToken: refreshToken,
       });
@@ -82,11 +102,34 @@ export class AuthService {
       };
     } catch (error) {
       if (error instanceof TokenExpiredError) {
-        await this.jwtTokensService.deleteRefreshToken(currentRefreshToken);
+        await this.jwtTokenService.deleteRefreshToken(currentRefreshToken);
         throw new UnauthorizedException(error.message);
       } else {
         throw new UnauthorizedException();
       }
     }
+  }
+
+  async register(registerDto: RegisterDto): Promise<void> {
+    const existingUser = await this.userSerivce.findByEmail(registerDto.email);
+    if (existingUser) {
+      throw new ConflictException('User already exists');
+    }
+
+    const hashedPassword = await this.hashService.hash(registerDto.password);
+
+    const { email } = await this.userSerivce.create({
+      ...registerDto,
+      password: hashedPassword,
+    });
+
+    const verificationCode = this.verificationCodeService.generateVerificationCode();
+
+    await this.verificationCodeService.saveEmailConfirmationCode({
+      code: verificationCode,
+      email,
+    });
+
+
   }
 }

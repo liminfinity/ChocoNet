@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@/common/modules';
 import { User } from '@prisma/client';
+import { RegisterDto } from '@/modules/auth/dto';
+import { CreateUserResponse } from '../types';
 
 @Injectable()
 export class UserRepository {
@@ -26,6 +28,26 @@ export class UserRepository {
       include: {
         avatars: true,
         geolocation: true,
+      },
+    });
+  }
+
+  async create(newUserDto: RegisterDto): Promise<CreateUserResponse> {
+    const { geolocation, avatars, ...user } = newUserDto;
+
+    return this.databaseService.user.create({
+      data: {
+        ...user,
+        geolocation: {
+          create: geolocation,
+        },
+        avatars: {
+          create: avatars,
+        },
+      },
+      select: {
+        id: true,
+        email: true,
       },
     });
   }

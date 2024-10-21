@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { JwtTokensRepository } from './repositories';
-import { JwtTokensService } from './services';
+import { JwtTokenRepository } from './repositories';
+import { JwtTokenService } from './services';
 import { JwtModule } from '@nestjs/jwt';
 import { ENV } from '../../constants';
 
@@ -16,7 +16,7 @@ import { ENV } from '../../constants';
       },
     }),
   ],
-  providers: [JwtTokensRepository, JwtTokensService],
-  exports: [JwtTokensService],
+  providers: [JwtTokenRepository, JwtTokenService],
+  exports: [JwtTokenService],
 })
-export class JwtTokensModule {}
+export class JwtTokenModule {}

@@ -5,7 +5,7 @@ import type { ValidateResponse } from './validateResponse.types';
 import { extractAccessTokenFromCookie } from '../../lib';
 import { ENV } from '../../constants';
 import { UserService } from '@/modules/user';
-import { JwtPayload } from '../../modules/jwtTokens';
+import { JwtPayload } from '../../modules/jwtToken';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

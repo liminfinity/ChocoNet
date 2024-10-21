@@ -1,1 +1,2 @@
-export { JwtTokensModule } from './jwtTokens';
+export { JwtTokenModule } from './jwtToken';
+export { VerificationCodeModule } from './verificationCode';

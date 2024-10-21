@@ -11,7 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { LoginDto } from '../dto';
+import { LoginDto, RegisterDto } from '../dto';
 import { AuthService } from '../services';
 import type { LoginControllerResponse, RefreshControllerResponse } from './types';
 import type { Request, Response } from 'express';
@@ -89,6 +89,15 @@ export class AuthController {
     });
 
     return user;
+  }
+
+  @Post('register')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(AvatarsInterceptor)
+  async register(
+    @Body() registerDto: RegisterDto
+  ): Promise<void> {
+    return this.authService.register(registerDto);
   }
 
   @Get('ping')

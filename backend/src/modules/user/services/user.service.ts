@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repositories';
 import { User } from '@prisma/client';
+import { RegisterDto } from '@/modules/auth/dto';
+import { CreateUserResponse } from '../types';
 
 @Injectable()
 export class UserService {
@@ -12,5 +14,9 @@ export class UserService {
 
   async findById(userId: string): Promise<User | null> {
     return this.userRepository.findById(userId);
+  }
+
+  async create(newUserDto: RegisterDto): Promise<CreateUserResponse> {
+    return this.userRepository.create(newUserDto);
   }
 }

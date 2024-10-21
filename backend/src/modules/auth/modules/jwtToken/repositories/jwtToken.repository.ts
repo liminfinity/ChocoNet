@@ -7,7 +7,7 @@ import type {
 } from '../types';
 
 @Injectable()
-export class JwtTokensRepository {
+export class JwtTokenRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async saveRefreshToken(
