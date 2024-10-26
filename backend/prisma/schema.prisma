@@ -39,7 +39,7 @@ model Geolocation {
 
 model Avatar {
   id        String   @id @default(uuid()) @db.Uuid
-  path      String   @unique
+  filename      String   @unique
   userId    String   @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
@@ -68,7 +68,7 @@ model VerificationCode {
   createdAt DateTime             @default(now()) @map("created_at")
   updatedAt DateTime             @updatedAt @map("updated_at")
 
-  @@unique([code, email])
+  @@unique([type, email])
   @@map("verification_codes")
 }
 

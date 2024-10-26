@@ -19,6 +19,6 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  await app.listen(3000);
+  await app.listen(ENV.PORT, ENV.HOST);
 }
 bootstrap();

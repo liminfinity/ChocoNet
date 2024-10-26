@@ -1,1 +1,5 @@
-export type { LoginControllerResponse, RefreshControllerResponse } from './responses';
+export type {
+  LoginControllerResponse,
+  RefreshControllerResponse,
+  VerifyCodeControllerResponse,
+} from './responses';

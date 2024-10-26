@@ -1,7 +1,7 @@
 import type { User } from '@prisma/client';
 
 type AuthServiceResponse = {
-  user: Omit<User, 'password'>;
+  user: Omit<User, 'password' | 'updatedAt' | 'id'>;
   accessToken: string;
   refreshToken: string;
 };
@@ -9,3 +9,5 @@ type AuthServiceResponse = {
 export type LoginServiceResponse = AuthServiceResponse;
 
 export type RefreshServiceResponse = AuthServiceResponse;
+
+export type VerifyCodeServiceResponse = AuthServiceResponse;

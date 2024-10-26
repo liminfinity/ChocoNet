@@ -1,11 +1,11 @@
-import { User } from '@prisma/client';
+import { VerificationCode } from '@prisma/client';
 
-type BaseVerificationСodeRequest = {
-  code: string;
-} & Pick<User, 'email'>;
+type BaseVerificationСodeRequest = Pick<VerificationCode, 'email' | 'code' | 'type'>;
 
 export type SaveVerificationCodeRequest = BaseVerificationСodeRequest;
 
-export type DeleteVerificationCodeRequest = BaseVerificationСodeRequest;
+export type UpdateVerificationCodeRequest = BaseVerificationСodeRequest;
+
+export type DeleteVerificationCodeRequest = Omit<BaseVerificationСodeRequest, 'code'>;
 
 export type VerifyCodeRequest = BaseVerificationСodeRequest;

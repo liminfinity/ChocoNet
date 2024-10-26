@@ -1,56 +1,69 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import type { LoginDto, RegisterDto } from '../dto';
+import type { LoginDto, RegisterDto, RequestCodeDto, VerifyCodeDto } from '../dto';
 import { HashService } from '@/common/modules';
-import type { LoginServiceResponse, RefreshServiceResponse } from './types';
+import type {
+  LoginServiceResponse,
+  RefreshServiceResponse,
+  VerifyCodeServiceResponse,
+} from './types';
 import { JwtPayload } from '../modules/jwtToken';
 import { JwtTokenService } from '../modules/jwtToken';
 import { UserService } from '@/modules/user';
 import { TokenExpiredError } from '@nestjs/jwt';
 import { VerificationCodeService } from '../modules/verificationCode';
+import { MailerService } from '@nestjs-modules/mailer';
+import { createConfirmationMail, mapFilesToFilenames } from '../lib';
+import omit from 'lodash.omit';
+import { VerificationCodeType } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashService: HashService,
-    private readonly userSerivce: UserService,
+    private readonly userService: UserService,
     private readonly jwtTokenService: JwtTokenService,
     private readonly verificationCodeService: VerificationCodeService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<LoginServiceResponse> {
-    const user = await this.userSerivce.findByEmail(loginDto.email);
+    const user = await this.userService.findByEmail(loginDto.email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const { password, ...userWithoutPassword } = user;
+    const { password, id, ...userWithoutPassword } = user;
 
     const isEqual = await this.hashService.compare(loginDto.password, password);
     if (!isEqual) {
       throw new NotFoundException('User not found');
     }
 
-    const isConfirmed = await this.verificationCodeService.isEmailConfirmed(user.email);
+    const isConfirmed = await this.verificationCodeService.isEmailConfirmed(
+      user.email,
+      VerificationCodeType.EMAIL_CONFIRMATION,
+    );
 
     if (!isConfirmed) {
       throw new ForbiddenException('Email not confirmed');
     }
 
     const jwtPayload: JwtPayload = {
-      sub: user.id,
+      sub: id,
       email: user.email,
     };
 
     const { accessToken, refreshToken } = await this.jwtTokenService.generateTokens(jwtPayload);
 
     await this.jwtTokenService.saveRefreshToken({
-      userId: user.id,
+      userId: id,
       token: refreshToken,
     });
 
@@ -73,22 +86,27 @@ export class AuthService {
     try {
       const { sub, email } = await this.jwtTokenService.verifyRefreshToken(currentRefreshToken);
 
-      const user = await this.userSerivce.findById(sub);
+      const user = await this.userService.findById(sub);
 
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
 
-      const isConfirmed = await this.verificationCodeService.isEmailConfirmed(user.email);
+      const isConfirmed = await this.verificationCodeService.isEmailConfirmed(
+        user.email,
+        VerificationCodeType.EMAIL_CONFIRMATION,
+      );
 
       if (!isConfirmed) {
         throw new ForbiddenException('Email not confirmed');
       }
 
-      const { accessToken, refreshToken } = await this.jwtTokenService.generateTokens({
+      const jwtPayload: JwtPayload = {
         sub,
         email,
-      });
+      };
+
+      const { accessToken, refreshToken } = await this.jwtTokenService.generateTokens(jwtPayload);
 
       await this.jwtTokenService.updateRefreshToken({
         oldToken: currentRefreshToken,
@@ -111,25 +129,91 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<void> {
-    const existingUser = await this.userSerivce.findByEmail(registerDto.email);
+    const existingUser = await this.userService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('User already exists');
     }
 
     const hashedPassword = await this.hashService.hash(registerDto.password);
 
-    const { email } = await this.userSerivce.create({
+    const { email } = await this.userService.create({
       ...registerDto,
+      avatars: mapFilesToFilenames(registerDto.avatars),
       password: hashedPassword,
     });
 
     const verificationCode = this.verificationCodeService.generateVerificationCode();
 
-    await this.verificationCodeService.saveEmailConfirmationCode({
+    await this.verificationCodeService.save({
       code: verificationCode,
       email,
+      type: VerificationCodeType.EMAIL_CONFIRMATION,
     });
 
+    const confirmationMail = createConfirmationMail(email, verificationCode);
 
+    await this.mailerService.sendMail(confirmationMail);
+  }
+
+  async verifyCode({ code, email }: VerifyCodeDto): Promise<VerifyCodeServiceResponse> {
+    const isVerified = await this.verificationCodeService.verify({
+      email,
+      code,
+      type: VerificationCodeType.EMAIL_CONFIRMATION,
+    });
+
+    if (!isVerified) {
+      throw new BadRequestException('Invalid code');
+    }
+
+    await this.verificationCodeService.delete({
+      email,
+      type: VerificationCodeType.EMAIL_CONFIRMATION,
+    });
+
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const userWithoutPassword = omit(user, ['password', 'id']);
+
+    const jwtPayload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+    };
+
+    const { accessToken, refreshToken } = await this.jwtTokenService.generateTokens(jwtPayload);
+
+    await this.jwtTokenService.saveRefreshToken({
+      userId: user.id,
+      token: refreshToken,
+    });
+
+    return {
+      user: userWithoutPassword,
+      accessToken,
+      refreshToken,
+    };
+  }
+  async requestNewCode({ email }: RequestCodeDto): Promise<void> {
+    const user = this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const verificationCode = this.verificationCodeService.generateVerificationCode();
+
+    await this.verificationCodeService.update({
+      code: verificationCode,
+      email,
+      type: VerificationCodeType.EMAIL_CONFIRMATION,
+    });
+
+    const confirmationMail = createConfirmationMail(email, verificationCode);
+
+    await this.mailerService.sendMail(confirmationMail);
   }
 }

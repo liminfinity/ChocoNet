@@ -8,6 +8,8 @@ import { JwtTokenModule, VerificationCodeModule } from './modules';
 import { UserModule } from '../user';
 import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from '@/common/services';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { mailerConfig } from '@/common/configs';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { MulterConfigService } from '@/common/services';
     MulterModule.registerAsync({
       useClass: MulterConfigService,
     }),
+    MailerModule.forRoot(mailerConfig),
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

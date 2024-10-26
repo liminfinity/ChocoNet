@@ -1,1 +1,5 @@
-export type { LoginServiceResponse, RefreshServiceResponse } from './responses';
+export type {
+  LoginServiceResponse,
+  RefreshServiceResponse,
+  VerifyCodeServiceResponse,
+} from './responses';

@@ -11,9 +11,13 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { LoginDto, RegisterDto } from '../dto';
+import { LoginDto, RegisterDto, RequestCodeDto, VerifyCodeDto } from '../dto';
 import { AuthService } from '../services';
-import type { LoginControllerResponse, RefreshControllerResponse } from './types';
+import type {
+  LoginControllerResponse,
+  RefreshControllerResponse,
+  VerifyCodeControllerResponse,
+} from './types';
 import type { Request, Response } from 'express';
 import {
   COOKIE_OPTIONS,
@@ -95,9 +99,41 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(AvatarsInterceptor)
   async register(
-    @Body() registerDto: RegisterDto
+    @Body() registerDto: RegisterDto,
+    @UploadedFiles() avatars: Express.Multer.File[],
   ): Promise<void> {
+    registerDto.avatars = avatars;
     return this.authService.register(registerDto);
+  }
+
+  @Post('verify-code')
+  @HttpCode(HttpStatus.OK)
+  async verifyCode(
+    @Body() verifyCodeDto: VerifyCodeDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<VerifyCodeControllerResponse> {
+    const { accessToken, refreshToken, user } = await this.authService.verifyCode(verifyCodeDto);
+
+    res.cookie(COOKIES.ACCESS_TOKEN, accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+      signed: true,
+    });
+
+    res.cookie(COOKIES.REFRESH_TOKEN, refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+      httpOnly: true,
+      signed: true,
+    });
+
+    return user;
+  }
+
+  @Post('request-new-code')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async requestNewCode(@Body() requestCodeDto: RequestCodeDto): Promise<void> {
+    return this.authService.requestNewCode(requestCodeDto);
   }
 
   @Get('ping')

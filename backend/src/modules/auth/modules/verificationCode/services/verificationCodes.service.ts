@@ -1,35 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { VerificationCodeRepository } from '../repositories';
 import {
   DeleteVerificationCodeRequest,
   VerifyCodeRequest,
   SaveVerificationCodeRequest,
+  UpdateVerificationCodeRequest,
 } from '../types';
 import { randint } from '@/common/lib';
+import { Interval } from '@nestjs/schedule';
+import { CODE_LIFETIME } from '../constants';
+import { VerificationCodeType } from '@prisma/client';
 
 @Injectable()
-export class VerificationCodeService {
+export class VerificationCodeService implements OnModuleInit {
   constructor(private readonly verificationCodeRepository: VerificationCodeRepository) {}
 
-  async saveEmailConfirmationCode(
-    emailConfirmationDto: SaveVerificationCodeRequest,
-  ): Promise<void> {
-    await this.verificationCodeRepository.saveEmailConfirmationCode(emailConfirmationDto);
+  async save(emailConfirmationDto: SaveVerificationCodeRequest): Promise<void> {
+    await this.verificationCodeRepository.save(emailConfirmationDto);
   }
 
   async delete(verificationCodeDto: DeleteVerificationCodeRequest): Promise<void> {
     await this.verificationCodeRepository.delete(verificationCodeDto);
   }
 
-  async verify(verificationCodeDto: VerifyCodeRequest): Promise<void> {
-    await this.verificationCodeRepository.verify(verificationCodeDto);
+  async update(verificationCodeDto: UpdateVerificationCodeRequest): Promise<void> {
+    await this.verificationCodeRepository.update(verificationCodeDto);
   }
 
-  async isEmailConfirmed(email: string): Promise<boolean> {
-    return this.verificationCodeRepository.isEmailConfirmed(email);
+  async verify(verificationCodeDto: VerifyCodeRequest): Promise<boolean> {
+    return this.verificationCodeRepository.verify(verificationCodeDto);
+  }
+
+  async isEmailConfirmed(email: string, type: VerificationCodeType): Promise<boolean> {
+    return this.verificationCodeRepository.isEmailConfirmed(email, type);
   }
 
   generateVerificationCode(): string {
     return randint(100_000, 999_999).toString();
+  }
+
+  async onModuleInit(): Promise<void> {
+    await this.verificationCodeRepository.deleteExpiredCodes();
+  }
+
+  @Interval(CODE_LIFETIME)
+  async deleteExpiredCodes(): Promise<void> {
+    await this.verificationCodeRepository.deleteExpiredCodes();
   }
 }

@@ -1,1 +1,2 @@
-export { serveStaticConfig } from './serveStatic';
+export { publicServeStaticConfig, uploadServeStaticConfig } from './serveStatic';
+export { mailerConfig } from './mailer';

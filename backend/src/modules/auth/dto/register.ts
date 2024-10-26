@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 import { GeolocationDto } from './geolocation';
-import { IsPhoneNumber, IsString, ValidateNested } from 'class-validator';
+import { IsOptional, IsPhoneNumber, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AuthDto } from './auth';
 
@@ -17,6 +17,7 @@ export class RegisterDto
   @IsPhoneNumber()
   phone!: string;
 
+  @IsOptional()
   @IsString()
   about!: string | null;
 
