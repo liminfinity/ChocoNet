@@ -1,6 +1,6 @@
 import type { User } from '@prisma/client';
 
-type AuthControllerResponse = Omit<User, 'password' | 'updatedAt' | 'id'>;
+export type AuthControllerResponse = Omit<User, 'password' | 'updatedAt' | 'id'>;
 
 export type LoginControllerResponse = AuthControllerResponse;
 

@@ -28,6 +28,10 @@ export class JwtTokenService implements OnModuleInit {
     return this.jwtTokenRepository.deleteRefreshToken(refreshToken);
   }
 
+  async deleteRefreshTokensByUserId(userId: string): Promise<void> {
+    await this.jwtTokenRepository.deleteRefreshTokensByUserId(userId);
+  }
+
   async updateRefreshToken(updateRefreshTokenDto: UpdateRefreshTokenRequest): Promise<void> {
     return this.jwtTokenRepository.updateRefreshToken(updateRefreshTokenDto);
   }

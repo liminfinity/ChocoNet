@@ -1,10 +1,8 @@
+import { EmailDto } from '@/common/dto';
 import { VerificationCode } from '@prisma/client';
-import { IsEmail, IsNumberString } from 'class-validator';
+import { IsNumberString } from 'class-validator';
 
-export class VerifyCodeDto implements Pick<VerificationCode, 'code' | 'email'> {
-  @IsEmail()
-  email!: string;
-
+export class VerifyCodeDto extends EmailDto implements Pick<VerificationCode, 'code'> {
   @IsNumberString()
   code!: string;
 }

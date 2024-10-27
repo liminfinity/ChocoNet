@@ -30,6 +30,14 @@ export class JwtTokenRepository {
     });
   }
 
+  async deleteRefreshTokensByUserId(userId: string): Promise<void> {
+    await this.databaseService.refreshToken.deleteMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
   async updateRefreshToken({ oldToken, newToken }: UpdateRefreshTokenRequest): Promise<void> {
     await this.databaseService.refreshToken.update({
       where: {

@@ -86,4 +86,14 @@ export class UserRepository {
       },
     });
   }
+  async updatePassword(email: string, newPassword: string): Promise<void> {
+    await this.databaseService.user.update({
+      where: {
+        email,
+      },
+      data: {
+        password: newPassword,
+      },
+    });
+  }
 }

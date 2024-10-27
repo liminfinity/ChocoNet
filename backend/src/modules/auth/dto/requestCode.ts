@@ -1,7 +1,3 @@
-import { VerificationCode } from '@prisma/client';
-import { IsEmail } from 'class-validator';
+import { EmailDto } from '@/common/dto';
 
-export class RequestCodeDto implements Pick<VerificationCode, 'email'> {
-  @IsEmail()
-  email!: string;
-}
+export class RequestCodeDto extends EmailDto {}

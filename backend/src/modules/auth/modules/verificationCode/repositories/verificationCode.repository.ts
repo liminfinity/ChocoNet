@@ -45,7 +45,7 @@ export class VerificationCodeRepository {
         type_email: verificationCodeFilter,
         code,
         updatedAt: {
-          lte: new Date(Date.now() - VERIFICATION_CODE_EXPIRATION_TIME),
+          gte: new Date(Date.now() - VERIFICATION_CODE_EXPIRATION_TIME),
         },
       },
     });

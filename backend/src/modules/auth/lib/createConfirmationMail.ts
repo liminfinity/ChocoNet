@@ -1,5 +1,5 @@
 import type { ISendMailOptions } from '@nestjs-modules/mailer';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 export const createConfirmationMail = (
   to: string,
@@ -11,7 +11,6 @@ export const createConfirmationMail = (
   template: join(__dirname, '..', 'templates', 'emailConfirmation'),
   context: {
     verificationCode,
-    logo: resolve('public', 'images', 'donats.avif'),
   },
   ...options,
 });

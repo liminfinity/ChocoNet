@@ -134,12 +134,9 @@ export class AuthService {
       throw new ConflictException('User already exists');
     }
 
-    const hashedPassword = await this.hashService.hash(registerDto.password);
-
     const { email } = await this.userService.create({
       ...registerDto,
       avatars: mapFilesToFilenames(registerDto.avatars),
-      password: hashedPassword,
     });
 
     const verificationCode = this.verificationCodeService.generateVerificationCode();
