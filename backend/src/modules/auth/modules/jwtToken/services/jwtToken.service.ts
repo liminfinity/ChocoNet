@@ -10,7 +10,11 @@ import { JwtPayload } from '../types';
 import type { GenerateTokensResponse } from './types';
 import { millisecondsToSeconds } from '@/common/lib';
 import { Interval } from '@nestjs/schedule';
-import { ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_REMOVAL_INTERVAL } from '../constants';
+import {
+  ACCESS_TOKEN_EXPIRATION_TIME,
+  REFRESH_TOKEN_EXPIRATION_TIME,
+  REFRESH_TOKEN_REMOVAL_INTERVAL,
+} from '../constants';
 
 @Injectable()
 export class JwtTokenService implements OnModuleInit {

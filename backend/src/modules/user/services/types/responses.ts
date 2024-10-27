@@ -1,9 +1,9 @@
 import { Avatar } from '@prisma/client';
-import { UserDto } from '../../types';
+import { UserRepositoryResponse } from '../../repositories/types';
 
 type BaseFindUserServiceResponse =
-  | (Omit<UserDto, 'avatars'> & {
-      avatars: (Pick<Express.Multer.File, 'path'> & Pick<Avatar, 'id'>)[] | null;
+  | (Omit<UserRepositoryResponse, 'avatars'> & {
+      avatars: (Pick<Express.Multer.File, 'path'> & Pick<Avatar, 'id'>)[];
     })
   | null;
 

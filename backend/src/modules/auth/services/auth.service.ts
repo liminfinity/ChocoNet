@@ -74,7 +74,10 @@ export class AuthService {
     };
   }
 
-  async logout(refreshToken: string): Promise<void> {
+  async logout(refreshToken?: string): Promise<void> {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
     return this.jwtTokenService.deleteRefreshToken(refreshToken);
   }
 

@@ -1,6 +1,14 @@
-import { UserDto } from '../../types';
+import { Avatar, User } from '@prisma/client';
+import { GeolocationDto } from '../../dto';
 
-type BaseFindUserRepositoryResponse = UserDto | null;
+export type AvatarRepositoryResponse = Pick<Avatar, 'filename' | 'id'>;
+
+export type UserRepositoryResponse = Omit<User, 'updatedAt'> & {
+  geolocation: GeolocationDto | null;
+  avatars: AvatarRepositoryResponse[];
+};
+
+type BaseFindUserRepositoryResponse = UserRepositoryResponse | null;
 
 export type FindUserByIdRepositoryResponse = BaseFindUserRepositoryResponse;
 

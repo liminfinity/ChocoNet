@@ -1,11 +1,23 @@
 import { EmailDto } from '@/common/dto';
 import { IsPassword } from '@/modules/auth/decorators';
-import { IsBoolean, ValidateIf } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsOptional, ValidateIf } from 'class-validator';
 
 export class UpdatePasswordDto extends EmailDto {
+  @ApiProperty({
+    description: 'New password',
+    example: 'password123',
+    required: true,
+  })
   @IsPassword()
   newPassword!: string;
 
+  @ApiProperty({
+    description: 'Confirm new password',
+    example: 'password123',
+    required: true,
+  })
+  @IsPassword()
   @ValidateIf(
     ({ newPassword, confirmPassword }: UpdatePasswordDto) => newPassword === confirmPassword,
     {
@@ -14,7 +26,13 @@ export class UpdatePasswordDto extends EmailDto {
   )
   confirmPassword!: string;
 
+  @ApiProperty({
+    description: 'Logout from other devices',
+    example: true,
+    required: false,
+    default: true,
+  })
+  @IsOptional()
   @IsBoolean()
-  logoutFromOtherDevices!: boolean;
-  
+  logoutFromOtherDevices: boolean = true;
 }

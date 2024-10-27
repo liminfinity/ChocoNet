@@ -1,7 +1,7 @@
-import type { User } from '@prisma/client';
+import { UserDto } from '@/modules/user/dto';
 
 export type AuthServiceResponse = {
-  user: Omit<User, 'password' | 'updatedAt' | 'id'>;
+  user: UserDto;
   accessToken: string;
   refreshToken: string;
 };

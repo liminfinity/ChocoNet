@@ -7,7 +7,10 @@ import { HashService } from '@/common/modules';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository, private readonly hashService: HashService) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly hashService: HashService,
+  ) {}
 
   async findByEmail(email: string): Promise<FindUserByEmailServiceResponse> {
     const user = await this.userRepository.findByEmail(email);
@@ -35,7 +38,7 @@ export class UserService {
     };
   }
 
-  async create({password, ...newUserDto}: CreateUserRequest): Promise<CreateUserResponse> {
+  async create({ password, ...newUserDto }: CreateUserRequest): Promise<CreateUserResponse> {
     const hashedPassword = await this.hashService.hash(password);
     return this.userRepository.create({
       ...newUserDto,

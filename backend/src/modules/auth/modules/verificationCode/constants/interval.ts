@@ -1,3 +1,3 @@
 export const VERIFICATION_CODE_REMOVAL_INTERVAL = 1000 * 60 * 15; // 15 minutes
 
-export const VERIFICATION_CODE_REQUEST_INTERVAL = 1000 * 30 // 30 seconds
+export const VERIFICATION_CODE_REQUEST_INTERVAL = 1000 * 30; // 30 seconds
