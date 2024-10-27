@@ -8,7 +8,7 @@ import {
 } from '../types';
 import { randint } from '@/common/lib';
 import { Interval } from '@nestjs/schedule';
-import { CODE_LIFETIME } from '../constants';
+import { VERIFICATION_CODE_REMOVAL_INTERVAL } from '../constants';
 import { VerificationCodeType } from '@prisma/client';
 
 @Injectable()
@@ -43,8 +43,12 @@ export class VerificationCodeService implements OnModuleInit {
     await this.verificationCodeRepository.deleteExpiredCodes();
   }
 
-  @Interval(CODE_LIFETIME)
+  @Interval(VERIFICATION_CODE_REMOVAL_INTERVAL)
   async deleteExpiredCodes(): Promise<void> {
     await this.verificationCodeRepository.deleteExpiredCodes();
+  }
+
+  async isCodeRequestAllowed(email: string, type: VerificationCodeType): Promise<boolean> {
+    return this.verificationCodeRepository.isCodeRequestAllowed(email, type);
   }
 }

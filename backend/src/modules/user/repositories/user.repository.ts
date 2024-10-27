@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@/common/modules';
-import {
-  CreateUserRequest,
-  CreateUserResponse,
-  FindUserByEmailResponse,
-  FindUserByIdResponse,
-} from '../types';
+import { CreateUserRequest, CreateUserResponse } from '../types';
+import { FindUserByEmailRepositoryResponse, FindUserByIdRepositoryResponse } from './types';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async findByEmail(email: string): Promise<FindUserByEmailResponse> {
+  async findByEmail(email: string): Promise<FindUserByEmailRepositoryResponse> {
     return this.databaseService.user.findUnique({
       where: {
         email,
@@ -41,7 +37,7 @@ export class UserRepository {
     });
   }
 
-  async findById(userId: string): Promise<FindUserByIdResponse> {
+  async findById(userId: string): Promise<FindUserByIdRepositoryResponse> {
     return this.databaseService.user.findUnique({
       where: {
         id: userId,

@@ -5,6 +5,7 @@ import type {
   SaveRefreshTokenRequest,
   UpdateRefreshTokenRequest,
 } from '../types';
+import { REFRESH_TOKEN_EXPIRATION_TIME } from '../constants';
 
 @Injectable()
 export class JwtTokenRepository {
@@ -39,6 +40,16 @@ export class JwtTokenRepository {
       },
       select: {
         id: true,
+      },
+    });
+  }
+
+  async deleteExpiredRefreshTokens(): Promise<void> {
+    await this.databaseService.refreshToken.deleteMany({
+      where: {
+        updatedAt: {
+          lte: new Date(Date.now() - REFRESH_TOKEN_EXPIRATION_TIME),
+        },
       },
     });
   }

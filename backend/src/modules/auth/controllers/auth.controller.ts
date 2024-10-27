@@ -22,11 +22,10 @@ import type { Request, Response } from 'express';
 import {
   COOKIE_OPTIONS,
   COOKIES,
-  JWT_ACCESS_TOKEN_EXPIRATION_TIME,
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME,
 } from '../constants';
 import { JwtAuthGuard } from '../guards';
 import { AvatarsInterceptor } from '@/modules/user/interceptors';
+import { ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME } from '../modules/jwtToken';
 
 @Controller('auth')
 export class AuthController {
@@ -42,14 +41,14 @@ export class AuthController {
 
     res.cookie(COOKIES.ACCESS_TOKEN, accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+      maxAge: ACCESS_TOKEN_EXPIRATION_TIME,
       signed: true,
     });
 
     if (loginDto.rememberMe) {
       res.cookie(COOKIES.REFRESH_TOKEN, refreshToken, {
         ...COOKIE_OPTIONS,
-        maxAge: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+        maxAge: REFRESH_TOKEN_EXPIRATION_TIME,
         httpOnly: true,
         signed: true,
       });
@@ -81,13 +80,13 @@ export class AuthController {
 
     res.cookie(COOKIES.ACCESS_TOKEN, accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+      maxAge: ACCESS_TOKEN_EXPIRATION_TIME,
       signed: true,
     });
 
     res.cookie(COOKIES.REFRESH_TOKEN, refreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+      maxAge: REFRESH_TOKEN_EXPIRATION_TIME,
       httpOnly: true,
       signed: true,
     });
@@ -116,13 +115,13 @@ export class AuthController {
 
     res.cookie(COOKIES.ACCESS_TOKEN, accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+      maxAge: ACCESS_TOKEN_EXPIRATION_TIME,
       signed: true,
     });
 
     res.cookie(COOKIES.REFRESH_TOKEN, refreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+      maxAge: REFRESH_TOKEN_EXPIRATION_TIME,
       httpOnly: true,
       signed: true,
     });
@@ -143,12 +142,5 @@ export class AuthController {
     return {
       message: 'pong',
     };
-  }
-
-  @Post('uploads')
-  @UseInterceptors(AvatarsInterceptor)
-  async uploads(@UploadedFiles() avatars: Express.Multer.File[]): Promise<void> {
-    console.log(avatars.map((avatar) => avatar.filename));
-    console.log(avatars[0]);
   }
 }

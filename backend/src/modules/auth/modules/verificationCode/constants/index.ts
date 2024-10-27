@@ -1,1 +1,2 @@
-export { CODE_LIFETIME } from './codeLifetime';
+export { VERIFICATION_CODE_EXPIRATION_TIME } from './codeParams';
+export { VERIFICATION_CODE_REMOVAL_INTERVAL, VERIFICATION_CODE_REQUEST_INTERVAL } from './interval';

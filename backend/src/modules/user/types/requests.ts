@@ -1,10 +1,10 @@
-import { Geolocation, User } from '@prisma/client';
+import { NonNullableKeys } from '@/common/types';
+import { UserDto } from './dto';
+import { Avatar } from '@prisma/client';
 
-export type CreateUserRequest = Pick<
-  User,
-  'email' | 'password' | 'firstName' | 'lastName' | 'phone' | 'about'
+export type CreateUserRequest = NonNullableKeys<
+  Omit<UserDto, 'id' | 'createdAt' | 'avatars'>,
+  'geolocation'
 > & {
-  geolocation: Pick<Geolocation, 'lat' | 'lng'>;
-} & {
-  avatars: Pick<Express.Multer.File, 'filename'>[];
+  avatars: Pick<Avatar, 'filename'>[]
 };

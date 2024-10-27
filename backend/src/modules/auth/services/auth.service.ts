@@ -204,6 +204,15 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
+    const isRequestAllowed = await this.verificationCodeService.isCodeRequestAllowed(
+      email,
+      VerificationCodeType.EMAIL_CONFIRMATION,
+    );
+
+    if (!isRequestAllowed) {
+      throw new BadRequestException('You must wait before requesting a new code');
+    }
+
     const verificationCode = this.verificationCodeService.generateVerificationCode();
 
     await this.verificationCodeService.update({

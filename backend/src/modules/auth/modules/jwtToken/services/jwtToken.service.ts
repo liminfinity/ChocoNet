@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { JwtTokenRepository } from '../repositories';
 import {
   SaveRefreshTokenRequest,
@@ -7,15 +7,13 @@ import {
 } from '../types';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../types';
-import {
-  JWT_ACCESS_TOKEN_EXPIRATION_TIME,
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME,
-} from '@/modules/auth/constants';
 import type { GenerateTokensResponse } from './types';
 import { millisecondsToSeconds } from '@/common/lib';
+import { Interval } from '@nestjs/schedule';
+import { ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_REMOVAL_INTERVAL } from '../constants';
 
 @Injectable()
-export class JwtTokenService {
+export class JwtTokenService implements OnModuleInit {
   constructor(
     private readonly jwtTokenRepository: JwtTokenRepository,
     private readonly jwtService: JwtService,
@@ -36,12 +34,12 @@ export class JwtTokenService {
 
   async generateRefreshToken(payload: JwtPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
-      expiresIn: millisecondsToSeconds(JWT_REFRESH_TOKEN_EXPIRATION_TIME),
+      expiresIn: millisecondsToSeconds(REFRESH_TOKEN_EXPIRATION_TIME),
     });
   }
   async generateAccessToken(payload: JwtPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
-      expiresIn: millisecondsToSeconds(JWT_ACCESS_TOKEN_EXPIRATION_TIME),
+      expiresIn: millisecondsToSeconds(ACCESS_TOKEN_EXPIRATION_TIME),
     });
   }
 
@@ -55,5 +53,14 @@ export class JwtTokenService {
 
   async verifyRefreshToken(token: string): Promise<JwtPayload> {
     return this.jwtService.verify(token);
+  }
+
+  async onModuleInit(): Promise<void> {
+    await this.jwtTokenRepository.deleteExpiredRefreshTokens();
+  }
+
+  @Interval(REFRESH_TOKEN_REMOVAL_INTERVAL)
+  async deleteExpiredRefreshTokens(): Promise<void> {
+    await this.jwtTokenRepository.deleteExpiredRefreshTokens();
   }
 }

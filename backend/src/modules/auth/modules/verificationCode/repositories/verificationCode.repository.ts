@@ -7,7 +7,10 @@ import type {
   VerifyCodeRequest,
 } from '../types';
 import { VerificationCodeType } from '@prisma/client';
-import { CODE_LIFETIME } from '../constants';
+import {
+  VERIFICATION_CODE_EXPIRATION_TIME,
+  VERIFICATION_CODE_REQUEST_INTERVAL,
+} from '../constants';
 
 @Injectable()
 export class VerificationCodeRepository {
@@ -41,6 +44,24 @@ export class VerificationCodeRepository {
       where: {
         type_email: verificationCodeFilter,
         code,
+        updatedAt: {
+          lte: new Date(Date.now() - VERIFICATION_CODE_EXPIRATION_TIME),
+        },
+      },
+    });
+    return !!verificationCode;
+  }
+
+  async isCodeRequestAllowed(email: string, type: VerificationCodeType): Promise<boolean> {
+    const verificationCode = await this.databaseService.verificationCode.findUnique({
+      where: {
+        type_email: {
+          email,
+          type,
+        },
+        updatedAt: {
+          lte: new Date(Date.now() - VERIFICATION_CODE_REQUEST_INTERVAL),
+        },
       },
     });
     return !!verificationCode;
@@ -62,7 +83,7 @@ export class VerificationCodeRepository {
     await this.databaseService.verificationCode.deleteMany({
       where: {
         updatedAt: {
-          lte: new Date(Date.now() - CODE_LIFETIME),
+          lte: new Date(Date.now() - VERIFICATION_CODE_EXPIRATION_TIME),
         },
       },
     });

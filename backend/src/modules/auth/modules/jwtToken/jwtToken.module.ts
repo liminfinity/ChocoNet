@@ -3,6 +3,7 @@ import { JwtTokenRepository } from './repositories';
 import { JwtTokenService } from './services';
 import { JwtModule } from '@nestjs/jwt';
 import { ENV } from '../../constants';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ENV } from '../../constants';
         issuer: ENV.JWT_ISSUER,
       },
     }),
+    ScheduleModule.forRoot(),
   ],
   providers: [JwtTokenRepository, JwtTokenService],
   exports: [JwtTokenService],
