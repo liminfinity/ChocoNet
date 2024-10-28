@@ -17,6 +17,7 @@ export const ENV = {
   PORT: Number(env.PORT) ?? DEFAULT_PORT,
   HOST: env.HOST ?? DEFAULT_HOST,
   NODE_ENV: env.NODE_ENV,
+  LOG_LEVEL: env.LOG_LEVEL,
 } as const;
 
 export const IS_DEV = ENV.NODE_ENV === 'development';

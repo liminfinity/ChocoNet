@@ -6,9 +6,12 @@ import cookieParser from 'cookie-parser';
 import { ENV, IS_DEV, ROUTER_PATHS } from '@/common/constants';
 import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './common/configs';
+import { LoggerService } from './common/services';
 
 const bootstrap = async (): Promise<void> => {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: LoggerService,
+  });
 
   app.use(cookieParser(ENV.COOKIE_SECRET));
 
