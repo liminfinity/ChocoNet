@@ -35,8 +35,8 @@ export class VerificationCodeService implements OnModuleInit {
     return this.verificationCodeRepository.isEmailConfirmed(email, type);
   }
 
-  generateVerificationCode(): string {
-    return randint(100_000, 999_999).toString();
+  generateVerificationCode(length = 6): string {
+    return randint(100_000, 999_999).toString().slice(0, length);
   }
 
   async onModuleInit(): Promise<void> {

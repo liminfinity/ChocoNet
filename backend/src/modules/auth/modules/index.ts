@@ -1,3 +1,3 @@
-export { JwtTokenModule } from './jwtToken';
-export { VerificationCodeModule } from './verificationCode';
-export { PasswordResetModule } from './passwordReset';
+export { JwtTokenModule, JwtTokenService } from './jwtToken';
+export { VerificationCodeModule, VerificationCodeService } from './verificationCode';
+export { PasswordResetModule, PasswordResetService } from './passwordReset';

@@ -19,7 +19,7 @@ import {
   VerifyCodeControllerResponse,
 } from './dto';
 import type { Request, Response } from 'express';
-import { COOKIE_OPTIONS, COOKIES } from '../constants';
+import { COOKIE_OPTIONS, COOKIES, ROUTER_PATHS } from '../constants';
 import { JwtAuthGuard } from '../guards';
 import { AvatarsInterceptor } from '@/modules/user/interceptors';
 import { ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME } from '../modules/jwtToken';
@@ -39,8 +39,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-@ApiTags('auth')
-@Controller('auth')
+@ApiTags(ROUTER_PATHS.AUTH)
+@Controller(ROUTER_PATHS.AUTH)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -49,7 +49,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'User logged in', type: LoginControllerResponse })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiForbiddenResponse({ description: 'Email not confirmed' })
-  @Post('login')
+  @Post(ROUTER_PATHS.LOGIN)
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDto,
@@ -78,7 +78,7 @@ export class AuthController {
   @ApiNoContentResponse({ description: 'User logged out' })
   @ApiUnauthorizedResponse({ description: 'Refresh token not found' })
   @ApiCookieAuth(COOKIES.REFRESH_TOKEN)
-  @Post('logout')
+  @Post(ROUTER_PATHS.LOGOUT)
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     const refreshToken: string | undefined = req.signedCookies[COOKIES.REFRESH_TOKEN];
@@ -93,7 +93,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'User token refreshed', type: RefreshControllerResponse })
   @ApiUnauthorizedResponse({ description: 'Refresh token or user not found' })
   @ApiForbiddenResponse({ description: 'Email not confirmed' })
-  @Post('refresh')
+  @Post(ROUTER_PATHS.REFRESH)
   @HttpCode(HttpStatus.OK)
   async refresh(
     @Req() req: Request,
@@ -124,7 +124,7 @@ export class AuthController {
   @ApiConsumes('multipart/form-data')
   @ApiNoContentResponse({ description: 'User registered' })
   @ApiConflictResponse({ description: 'User already exists' })
-  @Post('register')
+  @Post(ROUTER_PATHS.REGISTER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(AvatarsInterceptor)
   async register(
@@ -140,7 +140,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'User verified', type: VerifyCodeControllerResponse })
   @ApiBadRequestResponse({ description: 'Invalid code' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  @Post('verify-code')
+  @Post(ROUTER_PATHS.VERIFY_CODE)
   @HttpCode(HttpStatus.OK)
   async verifyCode(
     @Body() verifyCodeDto: VerifyCodeDto,
@@ -169,7 +169,7 @@ export class AuthController {
   @ApiNoContentResponse({ description: 'Code requested' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiBadRequestResponse({ description: 'You must wait before requesting a new code' })
-  @Post('request-new-code')
+  @Post(ROUTER_PATHS.NEW_CODE)
   @HttpCode(HttpStatus.NO_CONTENT)
   async requestNewCode(@Body() requestCodeDto: RequestCodeDto): Promise<void> {
     return this.authService.requestNewCode(requestCodeDto);

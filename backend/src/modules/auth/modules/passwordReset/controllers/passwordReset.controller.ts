@@ -3,7 +3,11 @@ import { PasswordResetService } from '../services';
 import { SendEmailDto, UpdatePasswordDto } from '../dto';
 import { RequestCodeDto, VerifyCodeDto } from '@/modules/auth/dto';
 import { UpdatePasswordControllerResponse } from './dto';
-import { COOKIE_OPTIONS, COOKIES } from '@/modules/auth/constants';
+import {
+  COOKIE_OPTIONS,
+  COOKIES,
+  ROUTER_PATHS as AUTH_ROUTER_PATHS,
+} from '@/modules/auth/constants';
 import { ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME } from '../../jwtToken';
 import { Response } from 'express';
 import omit from 'lodash.omit';
@@ -18,9 +22,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { ROUTER_PATHS } from '../constants';
 
-@ApiTags(joinPaths('auth', 'password-reset'))
-@Controller(joinPaths('auth', 'password-reset'))
+@ApiTags(joinPaths(AUTH_ROUTER_PATHS.AUTH, ROUTER_PATHS.PASSWORD_RESET))
+@Controller(joinPaths(AUTH_ROUTER_PATHS.AUTH, ROUTER_PATHS.PASSWORD_RESET))
 export class PasswordResetController {
   constructor(private readonly passwordResetService: PasswordResetService) {}
 
@@ -28,7 +33,7 @@ export class PasswordResetController {
   @ApiBody({ type: SendEmailDto })
   @ApiNoContentResponse({ description: 'Password reset email sent' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  @Post('send-email')
+  @Post(ROUTER_PATHS.EMAIL)
   @HttpCode(HttpStatus.NO_CONTENT)
   async sendEmail(@Body() { email }: SendEmailDto): Promise<void> {
     return this.passwordResetService.sendEmail(email);
@@ -38,7 +43,7 @@ export class PasswordResetController {
   @ApiBody({ type: VerifyCodeDto })
   @ApiNoContentResponse({ description: 'Code verified' })
   @ApiBadRequestResponse({ description: 'Invalid code' })
-  @Post('verify-code')
+  @Post(ROUTER_PATHS.VERIFY_CODE)
   @HttpCode(HttpStatus.NO_CONTENT)
   async verifyCode(@Body() verifyCodeDto: VerifyCodeDto): Promise<void> {
     return this.passwordResetService.verifyCode(verifyCodeDto);
@@ -49,7 +54,7 @@ export class PasswordResetController {
   @ApiOkResponse({ description: 'Password updated', type: UpdatePasswordControllerResponse })
   @ApiForbiddenResponse({ description: 'Email not confirmed' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  @Patch('update-password')
+  @Patch(ROUTER_PATHS.PASSWORD)
   async updatePassword(
     @Body() updatePasswordDto: UpdatePasswordDto,
     @Res({ passthrough: true }) res: Response,
@@ -75,7 +80,7 @@ export class PasswordResetController {
     return user;
   }
 
-  @Post('request-new-code')
+  @Post(ROUTER_PATHS.NEW_CODE)
   @ApiNoContentResponse({ description: 'Code requested' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiBadRequestResponse({ description: 'You must wait before requesting a new code' })
