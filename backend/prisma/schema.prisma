@@ -19,6 +19,7 @@ model User {
   avatars           Avatar[]
   refreshTokens     RefreshToken[]
   verificationCodes VerificationCode[]
+  phoneVerification PhoneVerification?
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
 
@@ -39,7 +40,7 @@ model Geolocation {
 
 model Avatar {
   id        String   @id @default(uuid()) @db.Uuid
-  filename      String   @unique
+  filename  String   @unique
   userId    String   @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
@@ -75,4 +76,16 @@ model VerificationCode {
 enum VerificationCodeType {
   EMAIL_CONFIRMATION
   PASSWORD_RESET
+  PHONE_CONFIRMATION
+}
+
+model PhoneVerification {
+  id         String   @id @default(uuid()) @db.Uuid
+  isVerified Boolean  @default(false) @map("is_verified")
+  userId     String   @unique @map("user_id") @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("phone_verification")
 }
