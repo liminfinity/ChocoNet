@@ -1,0 +1,1 @@
+export { UpdatePasswordControllerResponse } from './responses';

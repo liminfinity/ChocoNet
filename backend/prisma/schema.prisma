@@ -8,17 +8,20 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(uuid()) @db.Uuid
-  email       String       @unique @db.VarChar(255)
-  password    String
-  firstName   String       @map("first_name")
-  lastName    String       @map("last_name")
-  phone       String
-  geolocation Geolocation?
-  about       String?
-  avatars     Avatars[]
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  id                String             @id @default(uuid()) @db.Uuid
+  email             String             @unique @db.VarChar(255)
+  password          String
+  firstName         String             @map("first_name")
+  lastName          String             @map("last_name")
+  phone             String
+  geolocation       Geolocation?
+  about             String?
+  avatars           Avatar[]
+  refreshTokens     RefreshToken[]
+  verificationCodes VerificationCode[]
+  phoneVerification PhoneVerification?
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -27,7 +30,7 @@ model Geolocation {
   id        String   @id @default(uuid()) @db.Uuid
   lat       Float
   lng       Float
-  userId    String   @unique @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -35,13 +38,54 @@ model Geolocation {
   @@map("geolocations")
 }
 
-model Avatars {
+model Avatar {
   id        String   @id @default(uuid()) @db.Uuid
-  path      String   @unique
-  userId    String   @db.Uuid
+  filename  String   @unique
+  userId    String   @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("avatars")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("refresh_tokens")
+}
+
+model VerificationCode {
+  id        String               @id @default(uuid()) @db.Uuid
+  code      String               @db.Char(6)
+  type      VerificationCodeType
+  email     String
+  user      User                 @relation(fields: [email], references: [email], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
+
+  @@unique([type, email])
+  @@map("verification_codes")
+}
+
+enum VerificationCodeType {
+  EMAIL_CONFIRMATION
+  PASSWORD_RESET
+  PHONE_CONFIRMATION
+}
+
+model PhoneVerification {
+  id         String   @id @default(uuid()) @db.Uuid
+  isVerified Boolean  @default(false) @map("is_verified")
+  userId     String   @unique @map("user_id") @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("phone_verification")
 }
