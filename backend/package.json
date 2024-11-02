@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.1.0",
+    "@golevelup/ts-jest": "^0.5.6",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/axios": "^3.1.1",
     "@nestjs/common": "^10.0.0",

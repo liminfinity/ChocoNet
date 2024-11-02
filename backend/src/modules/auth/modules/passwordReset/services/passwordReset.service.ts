@@ -37,7 +37,7 @@ export class PasswordResetService {
    * @throws NotFoundException If the user associated with the email is not found
    */
   async sendEmail(email: string): Promise<void> {
-    const user = this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -140,7 +140,7 @@ export class PasswordResetService {
    * @throws BadRequestException If the user has requested a new verification code within the last 30 minutes
    */
   async requestNewCode({ email }: RequestCodeDto): Promise<void> {
-    const user = this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');

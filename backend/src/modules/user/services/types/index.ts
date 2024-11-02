@@ -1,1 +1,5 @@
-export type { FindUserByEmailServiceResponse, FindUserByIdServiceResponse } from './responses';
+export type {
+  FindUserByEmailServiceResponse,
+  FindUserByIdServiceResponse,
+  BaseFindUserServiceResponse,
+} from './responses';

@@ -1,5 +1,5 @@
 import type { ISendMailOptions } from '@nestjs-modules/mailer';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 /**
  * Creates an email for resetting a password.
@@ -19,7 +19,6 @@ export const createPasswordResetMail = (
   template: join(__dirname, '..', 'templates', 'resetPassword'),
   context: {
     verificationCode,
-    logo: resolve('public', 'images', 'donats.avif'),
   },
   ...options,
 });

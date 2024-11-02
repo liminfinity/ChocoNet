@@ -8,7 +8,7 @@ export type UserRepositoryResponse = Omit<User, 'updatedAt'> & {
   avatars: AvatarRepositoryResponse[];
 };
 
-type BaseFindUserRepositoryResponse = UserRepositoryResponse | null;
+export type BaseFindUserRepositoryResponse = UserRepositoryResponse | null;
 
 export type FindUserByIdRepositoryResponse = BaseFindUserRepositoryResponse;
 
