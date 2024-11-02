@@ -16,7 +16,7 @@ import type {
 import { JwtPayload } from '../modules/jwtToken';
 import { JwtTokenService } from '../modules/jwtToken';
 import { UserService } from '@/modules/user';
-import { TokenExpiredError } from '@nestjs/jwt';
+import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import { VerificationCodeService } from '../modules/verificationCode';
 import { MailerService } from '@nestjs-modules/mailer';
 import { createConfirmationMail, mapFilesToFilenames } from '../lib';
@@ -113,6 +113,8 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
+      const userWithoutPassword = omit(user, ['password', 'id']);
+
       const isConfirmed = await this.verificationCodeService.isEmailConfirmed(
         user.email,
         VerificationCodeType.EMAIL_CONFIRMATION,
@@ -137,14 +139,14 @@ export class AuthService {
       return {
         accessToken,
         refreshToken,
-        user,
+        user: userWithoutPassword,
       };
     } catch (error) {
-      if (error instanceof TokenExpiredError) {
+      if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
         await this.jwtTokenService.deleteRefreshToken(currentRefreshToken);
         throw new UnauthorizedException(error.message);
       } else {
-        throw new UnauthorizedException();
+        throw error;
       }
     }
   }
@@ -235,7 +237,7 @@ export class AuthService {
    * @throws BadRequestException If the user has requested a new verification code within the last 30 minutes
    */
   async requestNewCode({ email }: RequestCodeDto): Promise<void> {
-    const user = this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');

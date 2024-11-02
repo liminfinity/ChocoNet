@@ -105,3 +105,4 @@ export class VerificationCodeService implements OnModuleInit {
     return this.verificationCodeRepository.isCodeRequestAllowed(email, type);
   }
 }
+
