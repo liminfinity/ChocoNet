@@ -9,6 +9,14 @@ import { deletePlusFromPhone } from '@/common/lib';
 
 @Injectable()
 export class PhoneVerificationService {
+  /**
+   * Creates an instance of the PhoneVerificationService.
+   *
+   * @param userService The user service
+   * @param smsService The sms service
+   * @param verificationCodeService The verification code service
+   * @param phoneVerificationRepository The phone verification repository
+   */
   constructor(
     private readonly userService: UserService,
     private readonly smsService: SmsService,
@@ -16,6 +24,12 @@ export class PhoneVerificationService {
     private readonly phoneVerificationRepository: PhoneVerificationRepository,
   ) {}
 
+  /**
+   * Generates a new verification code and sends it to the user's phone.
+   * Also, saves the verification code to the database.
+   * @param userId The user's id
+   * @throws NotFoundException If the user is not found
+   */
   async getCode(userId: string): Promise<void> {
     const user = await this.userService.findById(userId);
 
@@ -40,6 +54,12 @@ export class PhoneVerificationService {
     await this.phoneVerificationRepository.create(userId);
   }
 
+  /**
+   * Verifies the given code for the given user.
+   * @param code The verification code
+   * @param userId The user's id
+   * @throws NotFoundException If the user is not found or the code is not valid
+   */
   async verifyCode(code: string, userId: string): Promise<void> {
     const user = await this.userService.findById(userId);
 
@@ -67,6 +87,11 @@ export class PhoneVerificationService {
     await this.phoneVerificationRepository.update(userId, true);
   }
 
+  /**
+   * Requests a new verification code for the given user.
+   * @param userId The user's id
+   * @throws NotFoundException If the user is not found
+   */
   async requestNewCode(userId: string): Promise<void> {
     const user = await this.userService.findById(userId);
 

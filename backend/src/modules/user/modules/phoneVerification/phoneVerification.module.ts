@@ -3,7 +3,7 @@ import { VerificationCodeModule } from '@/modules/auth/modules';
 import { SmsModule } from '@/common/modules';
 import { PhoneVerificationService } from './services';
 import { PhoneVerificationRepository } from './repositories';
-import { PhoneVerificationController } from './controllers';;
+import { PhoneVerificationController } from './controllers';
 import { UserModule } from '@/modules/user';
 
 @Module({
