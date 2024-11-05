@@ -8,6 +8,7 @@
   },
   "scripts": {
     "lint:backend": "cd backend && npx lint-staged --allow-empty",
+    "test:backend": "cd backend && npm run test",
     "prepare": "husky"
   }
 }
