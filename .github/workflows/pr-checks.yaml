@@ -23,6 +23,9 @@ jobs:
             - name: Run lint
               working-directory: backend
               run: npm run lint
+            - name: Run tests
+              working-directory: backend
+              run: npm run test
     cancel_merge:
         runs-on: ubuntu-latest
         needs: [run_checks]

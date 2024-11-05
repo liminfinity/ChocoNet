@@ -68,4 +68,4 @@ export const mockVerifyCode: VerifyCodeDto = {
 
 export const mockRequestNewCode: RequestCodeDto = {
   email: faker.internet.email(),
-}
+};
