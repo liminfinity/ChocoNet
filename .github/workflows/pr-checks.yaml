@@ -20,6 +20,9 @@ jobs:
             - name: Install dependencies
               working-directory: backend
               run: npm ci
+            - name: Set up prisma
+              working-directory: backend
+              run: npm run prisma:generate
             - name: Run lint
               working-directory: backend
               run: npm run lint
