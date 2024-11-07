@@ -1,4 +1,4 @@
 export { AuthModule } from './auth.module';
 export { JwtAuthGuard } from './guards';
-export { RequestWithUser } from './types';
+export type { UserFromToken } from './strategies';
 export { JwtStrategy } from './strategies';

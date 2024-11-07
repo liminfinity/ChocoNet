@@ -1,0 +1,1 @@
+export { PastryLikeModule } from './pastryLike';

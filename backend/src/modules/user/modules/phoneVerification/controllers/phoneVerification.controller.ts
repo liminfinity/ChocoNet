@@ -1,11 +1,12 @@
 import { joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as USERS_ROUTER_PATHS } from '@/modules/user/constants';
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ROUTER_PATHS } from '../constants';
 import { PhoneVerificationService } from '../services';
-import { RequestWithUser, JwtAuthGuard } from '@/modules/auth';
+import { JwtAuthGuard } from '@/modules/auth';
 import { VerifyCodeDto } from '../dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from '@/modules/user';
 
 @ApiTags(joinPaths(USERS_ROUTER_PATHS.USERS, ROUTER_PATHS.PHONE_VERIFICATION))
 @Controller(joinPaths(USERS_ROUTER_PATHS.USERS, ROUTER_PATHS.PHONE_VERIFICATION))
@@ -17,8 +18,8 @@ export class PhoneVerificationController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(ROUTER_PATHS.CODE)
   @UseGuards(JwtAuthGuard)
-  async getCode(@Req() { user }: RequestWithUser): Promise<void> {
-    return this.phoneVerificationService.getCode(user.id);
+  async getCode(@User('id') userId: string): Promise<void> {
+    return this.phoneVerificationService.getCode(userId);
   }
 
   @ApiOperation({ summary: 'Verify code' })
@@ -27,11 +28,8 @@ export class PhoneVerificationController {
   @Post(ROUTER_PATHS.VERIFY_CODE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async verifyCode(
-    @Req() { user }: RequestWithUser,
-    @Body() { code }: VerifyCodeDto,
-  ): Promise<void> {
-    return this.phoneVerificationService.verifyCode(code, user.id);
+  async verifyCode(@User('id') userId: string, @Body() { code }: VerifyCodeDto): Promise<void> {
+    return this.phoneVerificationService.verifyCode(code, userId);
   }
 
   @ApiOperation({ summary: 'Request new code' })
@@ -39,7 +37,7 @@ export class PhoneVerificationController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(ROUTER_PATHS.NEW_CODE)
   @UseGuards(JwtAuthGuard)
-  async requestNewCode(@Req() { user }: RequestWithUser): Promise<void> {
-    return this.phoneVerificationService.requestNewCode(user.id);
+  async requestNewCode(@User('id') userId: string): Promise<void> {
+    return this.phoneVerificationService.requestNewCode(userId);
   }
 }

@@ -19,6 +19,7 @@ export const mockUser: BaseFindUserServiceResponse = {
   lastName: faker.person.lastName(),
   phone: faker.phone.number(),
   createdAt: faker.date.recent(),
+  updatedAt: faker.date.recent(),
   about: faker.person.bio(),
   geolocation: {
     lat: faker.location.latitude(),

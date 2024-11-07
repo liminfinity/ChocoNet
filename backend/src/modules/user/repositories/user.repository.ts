@@ -28,6 +28,7 @@ export class UserRepository {
         phone: true,
         about: true,
         createdAt: true,
+        updatedAt: true,
         geolocation: {
           select: {
             lat: true,
@@ -65,6 +66,7 @@ export class UserRepository {
         phone: true,
         about: true,
         createdAt: true,
+        updatedAt: true,
         geolocation: {
           select: {
             lat: true,

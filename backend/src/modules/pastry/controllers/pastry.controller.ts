@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Post,
-  Req,
   Res,
   UploadedFiles,
   UseGuards,
@@ -15,7 +14,7 @@ import { MediaInterceptor } from '../interceptors';
 import { Response } from 'express';
 import { joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as BASE_ROUTER_PATHS } from '@/common/constants';
-import { JwtAuthGuard, RequestWithUser } from '@/modules/auth';
+import { JwtAuthGuard } from '@/modules/auth';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -24,6 +23,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { User } from '@/modules/user';
 
 @ApiTags(ROUTER_PATHS.PASTRIES)
 @Controller(ROUTER_PATHS.PASTRIES)
@@ -39,13 +39,13 @@ export class PastryController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(MediaInterceptor)
   async create(
-    @Req() { user }: RequestWithUser,
+    @User('id') userId: string,
     @Body() createPastryDto: CreatePastryDto,
     @UploadedFiles() media: Express.Multer.File[],
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     createPastryDto.media = media;
-    const { id } = await this.pastryService.create(user.id, createPastryDto);
+    const { id } = await this.pastryService.create(userId, createPastryDto);
 
     res.location(BASE_ROUTER_PATHS.HOME + joinPaths(ROUTER_PATHS.PASTRIES, id));
   }

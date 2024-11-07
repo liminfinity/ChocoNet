@@ -80,7 +80,5 @@ export class CreatePastryDto implements Omit<Pastry, 'id' | 'createdAt' | 'updat
     required: false,
     format: 'binary',
   })
-  @IsArray()
-  @IsString({ each: true })
   media!: Express.Multer.File[];
 }
