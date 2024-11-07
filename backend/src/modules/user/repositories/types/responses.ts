@@ -3,7 +3,7 @@ import { GeolocationDto } from '../../dto';
 
 export type AvatarRepositoryResponse = Pick<Avatar, 'filename' | 'id'>;
 
-export type UserRepositoryResponse = Omit<User, 'updatedAt'> & {
+export type UserRepositoryResponse = User & {
   geolocation: GeolocationDto | null;
   avatars: AvatarRepositoryResponse[];
 };

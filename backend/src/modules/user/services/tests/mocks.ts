@@ -13,6 +13,7 @@ export const mockRepositoryUser: NonNullable<BaseFindUserRepositoryResponse> = {
   phone: faker.phone.number(),
   about: faker.person.bio(),
   createdAt: faker.date.recent(),
+  updatedAt: faker.date.recent(),
   geolocation: {
     lat: faker.location.latitude(),
     lng: faker.location.longitude(),

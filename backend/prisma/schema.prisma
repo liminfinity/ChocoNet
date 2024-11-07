@@ -21,6 +21,7 @@ model User {
   verificationCodes VerificationCode[]
   phoneVerification PhoneVerification?
   pastries          Pastry[]
+  pastryLikes       PastryLike[]
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
 
@@ -101,6 +102,7 @@ model Pastry {
   geolocation PastryGeolocation?
   media       PastryMedia[]
   categories  PastryCategory[]
+  likes       PastryLike[]
   userId      String             @map("user_id") @db.Uuid
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime           @default(now()) @map("created_at")
@@ -168,4 +170,17 @@ enum PastryUnit {
   KILOGRAM
   PIECE
   LITER
+}
+
+model PastryLike {
+  id        String   @id @default(uuid()) @db.Uuid
+  pastryId  String   @map("pastry_id") @db.Uuid
+  pastry    Pastry   @relation(fields: [pastryId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([pastryId, userId])
+  @@map("pastry_likes")
 }

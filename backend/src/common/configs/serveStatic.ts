@@ -18,3 +18,9 @@ export const publicServeStaticConfig: ServeStaticModuleOptions = {
   rootPath: resolve(ROUTER_PATHS.PUBLIC),
   serveRoot: ROUTER_PATHS.HOME + ROUTER_PATHS.PUBLIC,
 };
+
+export const mediaServeStaticConfig: ServeStaticModuleOptions = {
+  ...baseServeStaticConfig,
+  rootPath: resolve(ROUTER_PATHS.MEDIA),
+  serveRoot: ROUTER_PATHS.HOME + ROUTER_PATHS.MEDIA,
+};
