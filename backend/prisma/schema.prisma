@@ -20,6 +20,7 @@ model User {
   refreshTokens     RefreshToken[]
   verificationCodes VerificationCode[]
   phoneVerification PhoneVerification?
+  pastries          Pastry[]
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
 
@@ -88,4 +89,83 @@ model PhoneVerification {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("phone_verification")
+}
+
+model Pastry {
+  id          String             @id @default(uuid()) @db.Uuid
+  name        String
+  price       Float
+  description String?
+  unit        PastryUnit
+  contact     PastryContact?
+  geolocation PastryGeolocation?
+  media       PastryMedia[]
+  categories  PastryCategory[]
+  userId      String             @map("user_id") @db.Uuid
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  @@map("pastries")
+}
+
+model PastryContact {
+  id        String   @id @default(uuid()) @db.Uuid
+  phone     String
+  pastryId  String   @unique @map("pastry_id") @db.Uuid
+  pastry    Pastry   @relation(fields: [pastryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pastry_contacts")
+}
+
+model PastryGeolocation {
+  id        String   @id @default(uuid()) @db.Uuid
+  lat       Float
+  lng       Float
+  pastryId  String   @unique @map("pastry_id") @db.Uuid
+  pastry    Pastry   @relation(fields: [pastryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pastry_geolocations")
+}
+
+model PastryMedia {
+  id        String   @id @default(uuid()) @db.Uuid
+  filename  String
+  pastryId  String   @map("pastry_id") @db.Uuid
+  pastry    Pastry   @relation(fields: [pastryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pastry_media")
+}
+
+model PastryCategory {
+  id        String             @id @default(uuid()) @db.Uuid
+  category  PastryCategoryEnum
+  pastryId  String             @map("pastry_id") @db.Uuid
+  pastry    Pastry             @relation(fields: [pastryId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  @@map("pastry_categories")
+}
+
+enum PastryCategoryEnum {
+  CAKES_AND_PASTRIES
+  COOKIES_AND_BISCUITS
+  CHOCOLATE_PRODUCTS
+  ICE_CREAM_AND_FROZEN_DESSERTS
+  CANDIES_AND_LOLLIPOPS
+  BAKED_GOODS_AND_SWEETS
+}
+
+enum PastryUnit {
+  GRAM
+  KILOGRAM
+  PIECE
+  LITER
 }

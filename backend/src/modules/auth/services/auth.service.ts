@@ -19,9 +19,10 @@ import { UserService } from '@/modules/user';
 import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import { VerificationCodeService } from '../modules/verificationCode';
 import { MailerService } from '@nestjs-modules/mailer';
-import { createConfirmationMail, mapFilesToFilenames } from '../lib';
+import { createConfirmationMail } from '../lib';
 import omit from 'lodash.omit';
 import { VerificationCodeType } from '@prisma/client';
+import { mapFilesToFilenames } from '@/common/lib';
 
 @Injectable()
 export class AuthService {

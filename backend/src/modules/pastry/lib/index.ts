@@ -1,0 +1,1 @@
+export { mapCategoriesToObjectArray } from './mapCategoriesToObject';

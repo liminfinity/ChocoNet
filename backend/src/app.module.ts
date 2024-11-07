@@ -6,6 +6,7 @@ import { uploadServeStaticConfig, publicServeStaticConfig } from './common/confi
 import { MorganMiddleware } from './common/middlewares';
 import { UserModule } from './modules/user';
 import { PhoneVerificationModule } from './modules/user/modules';
+import { PastryModule } from './modules/pastry';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PhoneVerificationModule } from './modules/user/modules';
     AuthModule,
     UserModule,
     PhoneVerificationModule,
+    PastryModule,
   ],
   controllers: [],
   providers: [],
