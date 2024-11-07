@@ -6,17 +6,18 @@ export type PastryMediaRepositoryResponse = Pick<PastryMedia, 'filename' | 'id'>
 
 export type PastryCategoryRepositoryResponse = Pick<PastryCategory, 'category' | 'id'>;
 
-export type PastryRepositoryResponse = Pastry & {
-  geolocation: PastryGeolocationDto | null;
-  contact: PastryContactDto | null;
-  media: PastryMediaRepositoryResponse[];
-  categories: PastryCategoryRepositoryResponse[];
-  _count: {
-    likes: number;
-  }
-} | null;
+export type PastryRepositoryResponse =
+  | (Pastry & {
+      geolocation: PastryGeolocationDto | null;
+      contact: PastryContactDto | null;
+      media: PastryMediaRepositoryResponse[];
+      categories: PastryCategoryRepositoryResponse[];
+      _count: {
+        likes: number;
+      };
+    })
+  | null;
 
 export type BaseFindPastryRepositoryResponse = PastryRepositoryResponse;
 
 export type FindPastryByIdRepositoryResponse = BaseFindPastryRepositoryResponse;
-

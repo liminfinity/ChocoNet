@@ -81,8 +81,8 @@ export class PastryRepository {
         _count: {
           select: {
             likes: true,
-          }
-        }
+          },
+        },
       },
     });
   }

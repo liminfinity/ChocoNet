@@ -12,6 +12,7 @@
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=production node dist/main",
+    "tunnel": "ssh -p 443 -R0:localhost:3000 -L4300:localhost:4300 qr@a.pinggy.io",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "prisma:migrate": "dotenv -e .env.local npx prisma migrate dev",
     "prisma:generate": "dotenv -e .env.local npx prisma generate",
