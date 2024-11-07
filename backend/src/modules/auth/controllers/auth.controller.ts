@@ -29,6 +29,7 @@ import {
   ApiConflictResponse,
   ApiConsumes,
   ApiCookieAuth,
+  ApiCreatedResponse,
   ApiExcludeEndpoint,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -122,10 +123,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Register user' })
   @ApiBody({ type: RegisterDto })
   @ApiConsumes('multipart/form-data')
-  @ApiNoContentResponse({ description: 'User registered' })
+  @ApiCreatedResponse({ description: 'User registered' })
   @ApiConflictResponse({ description: 'User already exists' })
   @Post(ROUTER_PATHS.REGISTER)
-  @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(AvatarsInterceptor)
   async register(
     @Body() registerDto: RegisterDto,

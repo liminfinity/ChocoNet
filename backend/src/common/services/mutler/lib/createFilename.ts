@@ -1,6 +1,6 @@
 import { DiskStorageOptions } from 'multer';
 import { extname } from 'node:path';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 export const createFilename: DiskStorageOptions['filename'] = (_req, file, cb) => {
   const uniqueSuffix = randomUUID();
