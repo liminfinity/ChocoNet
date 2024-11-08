@@ -1,8 +1,8 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { PastryLikeRepository } from '../repositories';
 import { PastryRepository } from '@/modules/pastry/repositories';
@@ -18,10 +18,10 @@ export class PastryLikeService {
     const pastry = await this.pastryRepository.findById(pastryId);
 
     if (!pastry) {
-      throw new BadRequestException('Pastry not found');
+      throw new NotFoundException('Pastry not found');
     }
 
-    if (pastry.userId === userId) {
+    if (pastry.user.id === userId) {
       throw new ForbiddenException('You cannot like your own pastry');
     }
 
@@ -38,10 +38,10 @@ export class PastryLikeService {
     const pastry = await this.pastryRepository.findById(pastryId);
 
     if (!pastry) {
-      throw new BadRequestException('Pastry not found');
+      throw new NotFoundException('Pastry not found');
     }
 
-    if (pastry.userId === userId) {
+    if (pastry.user.id === userId) {
       throw new ForbiddenException('You cannot unlike your own pastry');
     }
 

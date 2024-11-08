@@ -1,5 +1,5 @@
 export {
-  PrivateFindPastryByIdServiceResponse,
+  OwnerFindPastryByIdServiceResponse,
   PublicFindPastryByIdServiceResponse,
   FindPastryByIdServiceResponse,
 } from './responses';

@@ -1,22 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PastryRepository } from '../repositories';
-import { CreatePastryDto } from '../dto';
+import { CreatePastryDto, UpdatePastryDto } from '../dto';
 import { CreatePastryResponse } from '../types';
-import { mapCategoriesToObjectArray, mapPastryMediaToPaths } from '../lib';
+import { getPathToPastryMedia, mapCategoriesToObjectArray, mapPastryMediaToPaths } from '../lib';
 import { mapFilesToFilenames } from '@/common/lib';
 import { CreatePastryRepositoryRequest } from '../repositories';
 import {
   FindPastryByIdServiceResponse,
-  PrivateFindPastryByIdServiceResponse,
+  OwnerFindPastryByIdServiceResponse,
   PublicFindPastryByIdServiceResponse,
 } from './types';
 import { PastryLikeService } from '../modules/pastryLike';
+import { UpdatePastryRepositoryRequest } from '../repositories/types';
+import { PastryMediaService } from '../modules/pastryMedia';
+import { rm } from 'node:fs/promises';
+import omit from 'lodash.omit';
 
 @Injectable()
 export class PastryService {
   constructor(
     private readonly pastryRepository: PastryRepository,
     private readonly pastryLikeService: PastryLikeService,
+    private readonly pastryMediaService: PastryMediaService,
   ) {}
 
   async create(
@@ -35,7 +40,7 @@ export class PastryService {
   async findById(
     pastryId: string,
     userId: string,
-  ): Promise<PrivateFindPastryByIdServiceResponse | PublicFindPastryByIdServiceResponse> {
+  ): Promise<OwnerFindPastryByIdServiceResponse | PublicFindPastryByIdServiceResponse | null> {
     const pastry = await this.pastryRepository.findById(pastryId);
 
     if (!pastry) {
@@ -47,14 +52,50 @@ export class PastryService {
       media: mapPastryMediaToPaths(pastry.media),
     };
 
-    if (pastry.userId !== userId) {
+    if (pastry.user.id !== userId) {
       const isLiked = await this.pastryLikeService.isLiked(pastryId, userId);
-      return {
+
+      const publicResponse: PublicFindPastryByIdServiceResponse = {
         ...baseResponse,
         isLiked,
       };
+
+      return publicResponse;
     } else {
-      return baseResponse;
+      const ownerResponse: OwnerFindPastryByIdServiceResponse = omit(baseResponse, ['user']);
+
+      return ownerResponse;
     }
+  }
+
+  async update(
+    pastryId: string,
+    { categories, media, mediaToRemove, ...updatePastryDto }: UpdatePastryDto,
+  ): Promise<void> {
+    const updatePartyRequest: UpdatePastryRepositoryRequest = {
+      ...updatePastryDto,
+      mediaToRemove: mediaToRemove || [],
+      media: media && mapFilesToFilenames(media),
+      categories: categories && mapCategoriesToObjectArray(categories),
+    };
+
+    const filesToRemove = await this.pastryMediaService.findByIds(updatePartyRequest.mediaToRemove);
+
+    await this.pastryRepository.update(pastryId, updatePartyRequest);
+
+    for (const { filename } of filesToRemove) {
+      const path = getPathToPastryMedia(filename);
+      await rm(path);
+    }
+  }
+
+  async isPartyOwnedByUser(pastryId: string, userId: string): Promise<boolean> {
+    const pastry = await this.pastryRepository.findById(pastryId);
+
+    if (!pastry) {
+      throw new NotFoundException('Pastry not found');
+    }
+
+    return pastry.user.id === userId;
   }
 }

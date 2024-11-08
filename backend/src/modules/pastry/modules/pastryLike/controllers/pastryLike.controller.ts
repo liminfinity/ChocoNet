@@ -6,10 +6,10 @@ import { PastryLikeService } from '../services';
 import { JwtAuthGuard } from '@/modules/auth';
 import { User } from '@/modules/user';
 import {
-  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
@@ -33,7 +33,7 @@ export class PastryLikeController {
   @ApiCreatedResponse({
     description: 'The like has been created',
   })
-  @ApiBadRequestResponse({
+  @ApiNotFoundResponse({
     description: 'Pastry not found',
   })
   @ApiForbiddenResponse({
@@ -62,7 +62,7 @@ export class PastryLikeController {
   @ApiCreatedResponse({
     description: 'The like has been deleted',
   })
-  @ApiBadRequestResponse({
+  @ApiNotFoundResponse({
     description: 'Pastry not found',
   })
   @ApiForbiddenResponse({

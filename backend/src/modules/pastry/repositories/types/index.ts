@@ -1,4 +1,4 @@
-export type { CreatePastryRepositoryRequest } from './requests';
+export type { CreatePastryRepositoryRequest, UpdatePastryRepositoryRequest } from './requests';
 export type {
   FindPastryByIdRepositoryResponse,
   PastryMediaRepositoryResponse,
