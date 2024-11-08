@@ -1,6 +1,6 @@
 import { DatabaseService } from '@/common/modules';
 import { Injectable } from '@nestjs/common';
-import { CreatePastryRepositoryRequest } from './types';
+import { CreatePastryRepositoryRequest, UpdatePastryRepositoryRequest } from './types';
 import { CreatePastryResponse } from '../types';
 import { FindPastryByIdRepositoryResponse } from './types';
 
@@ -41,7 +41,7 @@ export class PastryRepository {
     });
   }
 
-  async findById(pastryId: string): Promise<FindPastryByIdRepositoryResponse> {
+  async findById(pastryId: string): Promise<FindPastryByIdRepositoryResponse | null> {
     return this.databaseService.pastry.findUnique({
       where: {
         id: pastryId,
@@ -78,11 +78,58 @@ export class PastryRepository {
             category: true,
           },
         },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
         _count: {
           select: {
             likes: true,
           },
         },
+      },
+    });
+  }
+
+  async update(pastryId: string, updatePastryDto: UpdatePastryRepositoryRequest): Promise<void> {
+    const { geolocation, contact, categories, media, mediaToRemove, ...updatingPastry } =
+      updatePastryDto;
+
+    await this.databaseService.pastry.update({
+      where: {
+        id: pastryId,
+      },
+      data: {
+        ...updatingPastry,
+        geolocation: {
+          update: geolocation,
+        },
+        contact: {
+          update: contact,
+        },
+        categories: {
+          deleteMany: {},
+          create: categories,
+        },
+        media: {
+          deleteMany: {
+            id: {
+              in: mediaToRemove,
+            },
+          },
+          create: media,
+        },
+      },
+    });
+  }
+
+  async delete(pastryId: string): Promise<void> {
+    await this.databaseService.pastry.delete({
+      where: {
+        id: pastryId,
       },
     });
   }

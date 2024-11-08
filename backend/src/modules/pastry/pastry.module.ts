@@ -4,7 +4,7 @@ import { PastryRepository } from './repositories';
 import { PastryService } from './services';
 import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from '@/common/services';
-import { PastryLikeModule } from './modules';
+import { PastryLikeModule, PastryMediaModule } from './modules';
 
 @Module({
   imports: [
@@ -12,6 +12,7 @@ import { PastryLikeModule } from './modules';
       useClass: MulterConfigService,
     }),
     PastryLikeModule,
+    PastryMediaModule,
   ],
   providers: [PastryRepository, PastryService],
   controllers: [PastryController],
