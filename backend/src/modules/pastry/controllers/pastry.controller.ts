@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -82,5 +83,22 @@ export class PastryController {
   ): Promise<void> {
     updatePastryDto.media = media;
     return this.pastryService.update(pastryId, updatePastryDto);
+  }
+
+  @ApiOperation({ summary: 'Delete pastry' })
+  @ApiParam({
+    name: ROUTER_PATHS.PASTRY.slice(1),
+    description: 'Pastry ID',
+    example: '1',
+    required: true,
+  })
+  @ApiNoContentResponse({ description: 'Pastry deleted' })
+  @ApiNotFoundResponse({ description: 'Pastry not found' })
+  @ApiForbiddenResponse({ description: 'You do not have permission to delete this pastry' })
+  @Delete(ROUTER_PATHS.PASTRY)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard, PastryOwnershipGuard)
+  async delete(@Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string): Promise<void> {
+    return this.pastryService.delete(pastryId);
   }
 }

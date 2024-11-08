@@ -125,4 +125,12 @@ export class PastryRepository {
       },
     });
   }
+
+  async delete(pastryId: string): Promise<void> {
+    await this.databaseService.pastry.delete({
+      where: {
+        id: pastryId,
+      },
+    });
+  }
 }

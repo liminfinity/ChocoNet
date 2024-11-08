@@ -89,6 +89,17 @@ export class PastryService {
     }
   }
 
+  async delete(pastryId: string): Promise<void> {
+    const filesToRemove = await this.pastryMediaService.findByPastryId(pastryId);
+
+    await this.pastryRepository.delete(pastryId);
+
+    for (const { filename } of filesToRemove) {
+      const path = getPathToPastryMedia(filename);
+      await rm(path);
+    }
+  }
+
   async isPartyOwnedByUser(pastryId: string, userId: string): Promise<boolean> {
     const pastry = await this.pastryRepository.findById(pastryId);
 

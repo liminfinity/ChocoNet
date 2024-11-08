@@ -1,1 +1,1 @@
-export type { FindPastryMediaByIdsResponse } from './responses';
+export type { FindPastryMediaByIdsResponse, FindPastryMediaByPastryIdResponse } from './responses';

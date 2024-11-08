@@ -1,6 +1,6 @@
 import { DatabaseService } from '@/common/modules';
 import { Injectable } from '@nestjs/common';
-import { FindPastryMediaByIdsResponse } from '../types';
+import { FindPastryMediaByIdsResponse, FindPastryMediaByPastryIdResponse } from '../types';
 
 @Injectable()
 export class PastryMediaRepository {
@@ -12,6 +12,18 @@ export class PastryMediaRepository {
         id: {
           in: ids,
         },
+      },
+      select: {
+        id: true,
+        filename: true,
+      },
+    });
+  }
+
+  async findByPastryId(pastryId: string): Promise<FindPastryMediaByPastryIdResponse> {
+    return this.databaseService.pastryMedia.findMany({
+      where: {
+        pastryId,
       },
       select: {
         id: true,

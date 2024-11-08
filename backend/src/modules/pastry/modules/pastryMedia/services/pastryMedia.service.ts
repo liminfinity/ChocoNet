@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PastryMediaRepository } from '../repositories';
-import { FindPastryMediaByIdsResponse } from '../types';
+import { FindPastryMediaByIdsResponse, FindPastryMediaByPastryIdResponse } from '../types';
 
 @Injectable()
 export class PastryMediaService {
@@ -8,5 +8,9 @@ export class PastryMediaService {
 
   async findByIds(ids: string[]): Promise<FindPastryMediaByIdsResponse> {
     return this.pastryMediaRepository.findByIds(ids);
+  }
+
+  async findByPastryId(pastryId: string): Promise<FindPastryMediaByPastryIdResponse> {
+    return this.pastryMediaRepository.findByPastryId(pastryId);
   }
 }
