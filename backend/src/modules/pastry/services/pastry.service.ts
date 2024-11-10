@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PastryRepository } from '../repositories';
-import { CreatePastryDto, UpdatePastryDto } from '../dto';
+import { CreatePastryDto, GetPastriesDto, GetPastryQueriesDto, UpdatePastryDto } from '../dto';
 import { CreatePastryResponse } from '../types';
 import { getPathToPastryMedia, mapCategoriesToObjectArray, mapPastryMediaToPaths } from '../lib';
 import { mapFilesToFilenames } from '@/common/lib';
@@ -15,6 +15,7 @@ import { UpdatePastryRepositoryRequest } from '../repositories/types';
 import { PastryMediaService } from '../modules/pastryMedia';
 import { rm } from 'node:fs/promises';
 import omit from 'lodash.omit';
+import { GeolocationService } from '@/common/modules';
 
 @Injectable()
 export class PastryService {
@@ -22,6 +23,7 @@ export class PastryService {
     private readonly pastryRepository: PastryRepository,
     private readonly pastryLikeService: PastryLikeService,
     private readonly pastryMediaService: PastryMediaService,
+    private readonly geolocationService: GeolocationService,
   ) {}
 
   async create(
@@ -108,5 +110,57 @@ export class PastryService {
     }
 
     return pastry.user.id === userId;
+  }
+
+  async getPastries(query: GetPastryQueriesDto, userId?: string): Promise<GetPastriesDto> {
+    const pastries = await this.pastryRepository.getPastries(query);
+
+    const pastriesWithPaths = pastries.map((pastry) => ({
+      ...pastry,
+      media: mapPastryMediaToPaths(pastry.media),
+    }));
+
+    const nextCursor =
+      pastriesWithPaths.length > 0 ? pastriesWithPaths[pastries.length - 1]?.id : undefined;
+
+    const pastriesWithGeolocation = await Promise.all(
+      pastriesWithPaths.map(async ({ geolocation, ...pastry }) => {
+        if (!geolocation) {
+          return {
+            ...pastry,
+            geolocation: null,
+          };
+        }
+        const { lat, lng } = geolocation;
+        const { formatted } = await this.geolocationService.getGeolocationByCoords(lat, lng);
+        return {
+          ...pastry,
+          geolocation: {
+            lat,
+            lng,
+            formatted,
+          },
+        };
+      }),
+    );
+
+    if (userId) {
+      const pastriesWithIsLiked = await Promise.all(
+        pastriesWithGeolocation.map(async (pastry) => {
+          const isLiked = await this.pastryLikeService.isLiked(pastry.id, userId);
+          return { ...pastry, isLiked };
+        }),
+      );
+
+      return {
+        data: pastriesWithIsLiked,
+        nextCursor,
+      };
+    }
+
+    return {
+      data: pastriesWithGeolocation,
+      nextCursor,
+    };
   }
 }

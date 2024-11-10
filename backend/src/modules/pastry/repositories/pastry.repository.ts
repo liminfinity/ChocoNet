@@ -1,8 +1,14 @@
 import { DatabaseService } from '@/common/modules';
 import { Injectable } from '@nestjs/common';
-import { CreatePastryRepositoryRequest, UpdatePastryRepositoryRequest } from './types';
+import {
+  CreatePastryRepositoryRequest,
+  GetPastriesResponse,
+  UpdatePastryRepositoryRequest,
+} from './types';
 import { CreatePastryResponse } from '../types';
 import { FindPastryByIdRepositoryResponse } from './types';
+import { createPastryQuery } from '../lib';
+import { GetPastryQueriesDto } from '../dto';
 
 @Injectable()
 export class PastryRepository {
@@ -130,6 +136,38 @@ export class PastryRepository {
     await this.databaseService.pastry.delete({
       where: {
         id: pastryId,
+      },
+    });
+  }
+
+  async getPastries(queryDto: GetPastryQueriesDto): Promise<GetPastriesResponse> {
+    const pastryQuery = createPastryQuery(queryDto);
+
+    return this.databaseService.pastry.findMany({
+      ...pastryQuery,
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        unit: true,
+        createdAt: true,
+        geolocation: {
+          select: {
+            lat: true,
+            lng: true,
+          },
+        },
+        media: {
+          select: {
+            id: true,
+            filename: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
       },
     });
   }

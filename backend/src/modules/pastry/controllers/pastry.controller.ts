@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
   Res,
   UploadedFiles,
   UseGuards,
@@ -14,12 +16,12 @@ import {
 } from '@nestjs/common';
 import { PastryService } from '../services';
 import { ROUTER_PATHS } from '../constants';
-import { CreatePastryDto, UpdatePastryDto } from '../dto';
+import { CreatePastryDto, GetPastryQueriesDto, UpdatePastryDto, GetPastriesDto } from '../dto';
 import { MediaInterceptor } from '../interceptors';
 import { Response } from 'express';
 import { joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as BASE_ROUTER_PATHS } from '@/common/constants';
-import { JwtAuthGuard } from '@/modules/auth';
+import { JwtAuthGuard, UserFromToken } from '@/modules/auth';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -28,11 +30,12 @@ import {
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from '@/modules/user';
+import { GuardUser, User } from '@/modules/user';
 import { PastryOwnershipGuard } from '../guards';
 
 @ApiTags(ROUTER_PATHS.PASTRIES)
@@ -49,7 +52,7 @@ export class PastryController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(MediaInterceptor)
   async create(
-    @User('id') userId: string,
+    @GuardUser('id') userId: string,
     @Body() createPastryDto: CreatePastryDto,
     @UploadedFiles() media: Express.Multer.File[],
     @Res({ passthrough: true }) res: Response,
@@ -100,5 +103,15 @@ export class PastryController {
   @UseGuards(JwtAuthGuard, PastryOwnershipGuard)
   async delete(@Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string): Promise<void> {
     return this.pastryService.delete(pastryId);
+  }
+
+  @ApiOperation({ summary: 'Get pastries' })
+  @ApiOkResponse({ type: GetPastriesDto, description: 'List of pastries' })
+  @Get()
+  async getPastries(
+    @Query() query: GetPastryQueriesDto,
+    @User() user: UserFromToken | undefined,
+  ): Promise<GetPastriesDto> {
+    return this.pastryService.getPastries(query, user?.id);
   }
 }

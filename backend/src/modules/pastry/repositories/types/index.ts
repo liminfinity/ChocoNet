@@ -3,4 +3,5 @@ export type {
   FindPastryByIdRepositoryResponse,
   PastryMediaRepositoryResponse,
   PastryRepositoryResponse,
+  GetPastriesResponse,
 } from './responses';

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import type { PastryGeolocation } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { IsLatitude, IsLongitude } from 'class-validator';
 
 export class PastryGeolocationDto implements Pick<PastryGeolocation, 'lat' | 'lng'> {
   @ApiProperty({
@@ -9,7 +9,7 @@ export class PastryGeolocationDto implements Pick<PastryGeolocation, 'lat' | 'ln
     example: 42,
     required: true,
   })
-  @IsNumber()
+  @IsLatitude()
   @Type(() => Number)
   lat!: number;
 
@@ -18,7 +18,7 @@ export class PastryGeolocationDto implements Pick<PastryGeolocation, 'lat' | 'ln
     example: 42,
     required: true,
   })
-  @IsNumber()
+  @IsLongitude()
   @Type(() => Number)
   lng!: number;
 }

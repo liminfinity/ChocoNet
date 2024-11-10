@@ -4,7 +4,7 @@ import { Controller, Delete, HttpCode, HttpStatus, Param, Post, UseGuards } from
 import { ROUTER_PATHS } from '../constants';
 import { PastryLikeService } from '../services';
 import { JwtAuthGuard } from '@/modules/auth';
-import { User } from '@/modules/user';
+import { GuardUser } from '@/modules/user';
 import {
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -44,7 +44,7 @@ export class PastryLikeController {
   })
   @Post(ROUTER_PATHS.PASTRY)
   async createLike(
-    @User('id') userId: string,
+    @GuardUser('id') userId: string,
     @Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string,
   ): Promise<void> {
     return this.pastryLikeService.createLike(pastryId, userId);
@@ -74,7 +74,7 @@ export class PastryLikeController {
   @Delete(ROUTER_PATHS.PASTRY)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteLike(
-    @User('id') userId: string,
+    @GuardUser('id') userId: string,
     @Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string,
   ): Promise<void> {
     return this.pastryLikeService.deleteLike(pastryId, userId);
