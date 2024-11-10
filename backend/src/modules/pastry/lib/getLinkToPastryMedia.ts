@@ -8,6 +8,6 @@ import { createOrigin, joinPaths } from '@/common/lib';
  */
 export const getLinkToPastryMedia = (filename: string): string => {
   const path = ROUTER_PATHS.HOME + joinPaths(ROUTER_PATHS.UPLOADS, ROUTER_PATHS.MEDIA, filename);
-  const origin = createOrigin(ENV.HOST, ENV.PORT);
+  const origin = createOrigin(ENV.HOST, ENV.PORT, ENV.PROTOCOL);
   return `${origin}${path}`;
 };

@@ -6,3 +6,4 @@ export { createOrigin } from './createOrigin';
 export { loadEnv } from './loadEnv';
 export { deletePlusFromPhone } from './deletePlusFromPhone';
 export { mapFilesToFilenames } from './mapFilesToFilenames';
+export { kmToMeters } from './kmToMeters';

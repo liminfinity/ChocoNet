@@ -6,7 +6,7 @@ import { PhoneVerificationService } from '../services';
 import { JwtAuthGuard } from '@/modules/auth';
 import { VerifyCodeDto } from '../dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from '@/modules/user';
+import { GuardUser } from '@/modules/user';
 
 @ApiTags(joinPaths(USERS_ROUTER_PATHS.USERS, ROUTER_PATHS.PHONE_VERIFICATION))
 @Controller(joinPaths(USERS_ROUTER_PATHS.USERS, ROUTER_PATHS.PHONE_VERIFICATION))
@@ -18,7 +18,7 @@ export class PhoneVerificationController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(ROUTER_PATHS.CODE)
   @UseGuards(JwtAuthGuard)
-  async getCode(@User('id') userId: string): Promise<void> {
+  async getCode(@GuardUser('id') userId: string): Promise<void> {
     return this.phoneVerificationService.getCode(userId);
   }
 
@@ -28,7 +28,10 @@ export class PhoneVerificationController {
   @Post(ROUTER_PATHS.VERIFY_CODE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async verifyCode(@User('id') userId: string, @Body() { code }: VerifyCodeDto): Promise<void> {
+  async verifyCode(
+    @GuardUser('id') userId: string,
+    @Body() { code }: VerifyCodeDto,
+  ): Promise<void> {
     return this.phoneVerificationService.verifyCode(code, userId);
   }
 
@@ -37,7 +40,7 @@ export class PhoneVerificationController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(ROUTER_PATHS.NEW_CODE)
   @UseGuards(JwtAuthGuard)
-  async requestNewCode(@User('id') userId: string): Promise<void> {
+  async requestNewCode(@GuardUser('id') userId: string): Promise<void> {
     return this.phoneVerificationService.requestNewCode(userId);
   }
 }

@@ -6,6 +6,7 @@ const { env } = process;
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_HOST = 'localhost';
+const DEFAULT_PROTOCOL = 'http';
 
 export const ENV = {
   COOKIE_SECRET: env.COOKIE_SECRET,
@@ -16,6 +17,7 @@ export const ENV = {
   MAILER_FROM: env.MAILER_FROM,
   PORT: Number(env.PORT) ?? DEFAULT_PORT,
   HOST: env.HOST ?? DEFAULT_HOST,
+  PROTOCOL: env.PROTOCOL ?? DEFAULT_PROTOCOL,
   NODE_ENV: env.NODE_ENV,
   LOG_LEVEL: env.LOG_LEVEL,
 } as const;
