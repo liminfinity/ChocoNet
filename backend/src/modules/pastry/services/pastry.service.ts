@@ -19,6 +19,14 @@ import { GeolocationService } from '@/common/modules';
 
 @Injectable()
 export class PastryService {
+  /**
+   * The constructor for the PastryService.
+   *
+   * @param pastryRepository The repository for the Pastry entity.
+   * @param pastryLikeService The service for the PastryLike entity.
+   * @param pastryMediaService The service for the PastryMedia entity.
+   * @param geolocationService The service for geolocation.
+   */
   constructor(
     private readonly pastryRepository: PastryRepository,
     private readonly pastryLikeService: PastryLikeService,
@@ -26,6 +34,13 @@ export class PastryService {
     private readonly geolocationService: GeolocationService,
   ) {}
 
+  /**
+   * Creates a new pastry for a given user.
+   *
+   * @param userId - The ID of the user creating the pastry.
+   * @param createPastryDto - The data transfer object containing pastry details, including categories and media.
+   * @returns A promise that resolves to the response containing the ID of the newly created pastry.
+   */
   async create(
     userId: string,
     { categories, media, ...createPastryDto }: CreatePastryDto,
@@ -39,6 +54,16 @@ export class PastryService {
     return this.pastryRepository.create(userId, createPastryRequest);
   }
 
+  /**
+   * Finds a pastry by ID.
+   *
+   * @param pastryId - The ID of the pastry to find.
+   * @param userId - The ID of the user making the request.
+   * @returns A promise that resolves to an object containing the pastry details, or null if the pastry does not exist.
+   *          If the user is the owner of the pastry, the response will contain the pastry details with the user field omitted.
+   *          If the user is not the owner of the pastry, the response will contain the pastry details, as well as a boolean indicating
+   *          whether the user has liked the pastry.
+   */
   async findById(
     pastryId: string,
     userId: string,
@@ -70,6 +95,13 @@ export class PastryService {
     }
   }
 
+  /**
+   * Updates a pastry with the specified ID.
+   *
+   * @param pastryId - The ID of the pastry to update.
+   * @param updatePastryDto - The data transfer object containing the updated pastry details, including categories and media.
+   * @returns A promise that resolves when the update operation is complete.
+   */
   async update(
     pastryId: string,
     { categories, media, mediaToRemove, ...updatePastryDto }: UpdatePastryDto,
@@ -91,6 +123,12 @@ export class PastryService {
     }
   }
 
+  /**
+   * Deletes a pastry with the specified ID, as well as all related media.
+   *
+   * @param pastryId - The ID of the pastry to delete.
+   * @returns A promise that resolves when the delete operation is complete.
+   */
   async delete(pastryId: string): Promise<void> {
     const filesToRemove = await this.pastryMediaService.findByPastryId(pastryId);
 
@@ -102,6 +140,14 @@ export class PastryService {
     }
   }
 
+  /**
+   * Determines if the user with the specified ID owns the pastry with the specified ID.
+   *
+   * @param pastryId - The ID of the pastry to check.
+   * @param userId - The ID of the user to check.
+   * @returns A promise that resolves to true if the user owns the pastry, or false otherwise.
+   * @throws {NotFoundException} If the pastry with the specified ID does not exist.
+   */
   async isPartyOwnedByUser(pastryId: string, userId: string): Promise<boolean> {
     const pastry = await this.pastryRepository.findById(pastryId);
 
@@ -112,6 +158,13 @@ export class PastryService {
     return pastry.user.id === userId;
   }
 
+  /**
+   * Retrieves a list of pastries based on the specified query parameters.
+   *
+   * @param query - The query parameters for fetching pastries.
+   * @param userId - The ID of the user to include in the response, used for determining if the user has liked the pastry.
+   * @returns A promise that resolves to a response containing the list of pastries.
+   */
   async getPastries(query: GetPastryQueriesDto, userId?: string): Promise<GetPastriesDto> {
     const pastries = await this.pastryRepository.getPastries(query);
 
