@@ -166,12 +166,12 @@ export class PastryRepository {
     });
   }
 
-/**
- * Retrieves a list of pastries based on the provided query parameters.
- *
- * @param queryDto - DTO containing the query parameters for fetching pastries.
- * @returns A promise that resolves to a response containing the list of pastries.
- */
+  /**
+   * Retrieves a list of pastries based on the provided query parameters.
+   *
+   * @param queryDto - DTO containing the query parameters for fetching pastries.
+   * @returns A promise that resolves to a response containing the list of pastries.
+   */
   async getPastries(queryDto: GetPastryQueriesDto): Promise<GetPastriesResponse> {
     const pastryQuery = createPastryQuery(queryDto);
 
