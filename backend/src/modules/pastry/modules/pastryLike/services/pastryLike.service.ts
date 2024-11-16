@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { PastryLikeRepository } from '../repositories';
 import { PastryRepository } from '@/modules/pastry/repositories';
+import { GetLikedPastriesDto, GetLikedPastryQueriesDto } from '../dto';
+import { addGeolocationToPastries, addMediaPathsToPastries } from '@/modules/pastry/lib';
+import { GeolocationService } from '@/common/modules';
+import { getNextCursor } from '@/common/lib';
 
 @Injectable()
 export class PastryLikeService {
@@ -14,10 +18,12 @@ export class PastryLikeService {
    *
    * @param pastryLikeRepository The repository for the PastryLike entity.
    * @param pastryRepository The repository for the Pastry entity.
+   * @param geolocationService The service for geolocation.
    */
   constructor(
     private readonly pastryLikeRepository: PastryLikeRepository,
     private readonly pastryRepository: PastryRepository,
+    private readonly geolocationService: GeolocationService,
   ) {}
 
   /**
@@ -89,5 +95,33 @@ export class PastryLikeService {
    */
   async isLiked(pastryId: string, userId: string): Promise<boolean> {
     return this.pastryLikeRepository.isLiked(pastryId, userId);
+  }
+
+  /**
+   * Retrieves a list of pastries that the user with the specified ID has liked.
+   *
+   * @param query - The query parameters for fetching liked pastries.
+   * @param userId - The ID of the user whose liked pastries to retrieve.
+   * @returns A promise that resolves to an object containing the list of liked pastries and a cursor for pagination.
+   */
+  async getLikedPastries(
+    query: GetLikedPastryQueriesDto,
+    userId: string,
+  ): Promise<GetLikedPastriesDto> {
+    const pastries = await this.pastryLikeRepository.getLikedPastries(query, userId);
+
+    const pastriesWithPaths = addMediaPathsToPastries(pastries);
+
+    const nextCursor = getNextCursor(pastriesWithPaths);
+
+    const pastriesWithGeolocation = await addGeolocationToPastries(
+      pastriesWithPaths,
+      this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
+    );
+
+    return {
+      data: pastriesWithGeolocation,
+      nextCursor,
+    };
   }
 }

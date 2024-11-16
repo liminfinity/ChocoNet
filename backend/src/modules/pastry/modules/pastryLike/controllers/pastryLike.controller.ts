@@ -1,21 +1,40 @@
 import { joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as PASTRY_ROUTER_PATHS } from '@/modules/pastry/constants';
-import { Controller, Delete, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ROUTER_PATHS } from '../constants';
 import { PastryLikeService } from '../services';
 import { JwtAuthGuard } from '@/modules/auth';
 import { GuardUser } from '@/modules/user';
 import {
   ApiConflictResponse,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { COOKIES } from '@/modules/auth/constants';
+import { GetLikedPastriesDto, GetLikedPastryQueriesDto } from '../dto';
 
 @ApiTags(joinPaths(PASTRY_ROUTER_PATHS.PASTRIES, ROUTER_PATHS.LIKES))
+@ApiCookieAuth(COOKIES.ACCESS_TOKEN)
+@ApiUnauthorizedResponse({
+  description: 'Unauthorized',
+})
 @Controller(joinPaths(PASTRY_ROUTER_PATHS.PASTRIES, ROUTER_PATHS.LIKES))
 @UseGuards(JwtAuthGuard)
 export class PastryLikeController {
@@ -78,5 +97,17 @@ export class PastryLikeController {
     @Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string,
   ): Promise<void> {
     return this.pastryLikeService.deleteLike(pastryId, userId);
+  }
+
+  @ApiOperation({
+    summary: 'Get all pastries liked by the user',
+  })
+  @ApiOkResponse({ type: GetLikedPastriesDto, description: 'The list of pastries' })
+  @Get()
+  async getLikedPastries(
+    @Query() query: GetLikedPastryQueriesDto,
+    @GuardUser('id') userId: string,
+  ): Promise<GetLikedPastriesDto> {
+    return this.pastryLikeService.getLikedPastries(query, userId);
   }
 }

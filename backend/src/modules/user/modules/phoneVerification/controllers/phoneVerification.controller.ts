@@ -5,11 +5,17 @@ import { ROUTER_PATHS } from '../constants';
 import { PhoneVerificationService } from '../services';
 import { JwtAuthGuard } from '@/modules/auth';
 import { VerifyCodeDto } from '../dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { GuardUser } from '@/modules/user';
+import { COOKIES } from '@/modules/auth/constants';
 
 @ApiTags(joinPaths(USERS_ROUTER_PATHS.USERS, ROUTER_PATHS.PHONE_VERIFICATION))
+@ApiCookieAuth(COOKIES.ACCESS_TOKEN)
+@ApiUnauthorizedResponse({
+  description: 'Unauthorized',
+})
 @Controller(joinPaths(USERS_ROUTER_PATHS.USERS, ROUTER_PATHS.PHONE_VERIFICATION))
+@UseGuards(JwtAuthGuard)
 export class PhoneVerificationController {
   constructor(private readonly phoneVerificationService: PhoneVerificationService) {}
 
@@ -17,7 +23,6 @@ export class PhoneVerificationController {
   @ApiResponse({ status: HttpStatus.OK, description: 'Code sent successfully' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(ROUTER_PATHS.CODE)
-  @UseGuards(JwtAuthGuard)
   async getCode(@GuardUser('id') userId: string): Promise<void> {
     return this.phoneVerificationService.getCode(userId);
   }
@@ -27,7 +32,6 @@ export class PhoneVerificationController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Post(ROUTER_PATHS.VERIFY_CODE)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
   async verifyCode(
     @GuardUser('id') userId: string,
     @Body() { code }: VerifyCodeDto,
@@ -39,7 +43,6 @@ export class PhoneVerificationController {
   @ApiResponse({ status: HttpStatus.OK, description: 'Code sent successfully' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(ROUTER_PATHS.NEW_CODE)
-  @UseGuards(JwtAuthGuard)
   async requestNewCode(@GuardUser('id') userId: string): Promise<void> {
     return this.phoneVerificationService.requestNewCode(userId);
   }

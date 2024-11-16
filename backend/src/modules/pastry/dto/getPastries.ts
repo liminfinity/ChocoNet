@@ -2,7 +2,7 @@ import { Pastry, PastryUnit } from '@prisma/client';
 import { PastryGeolocationDto } from './geolocation';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { MediaDto } from './media';
-import { IsOptional, IsUUID } from 'class-validator';
+import { GetBasePastriesDto } from './getBasePastries';
 
 export class PastryDto implements Pick<Pastry, 'id' | 'createdAt' | 'name' | 'price' | 'unit'> {
   @ApiProperty({
@@ -74,19 +74,11 @@ class AuthenticatedPastryDto extends PastryDto {
 }
 
 @ApiExtraModels(AuthenticatedPastryDto, PastryDto)
-export class GetPastriesDto {
+export class GetPastriesDto extends GetBasePastriesDto {
   @ApiProperty({
     description: 'List of pastries',
     isArray: true,
     oneOf: [{ $ref: getSchemaPath(AuthenticatedPastryDto) }, { $ref: getSchemaPath(PastryDto) }],
   })
   data!: (AuthenticatedPastryDto | PastryDto)[];
-
-  @ApiProperty({
-    description: 'Next cursor for pagination (uuid v4)',
-    example: '123e4567-e89b-12d3-a456-426655440000',
-  })
-  @IsOptional()
-  @IsUUID('4')
-  nextCursor?: string;
 }

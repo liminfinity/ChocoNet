@@ -5,3 +5,5 @@ export { getPathToPastryMedia } from './getPathToPastryMedia';
 export { createPastryWhereCondition } from './createPastryWhereCondition';
 export { createPastryOrderByCondition } from './createPastryOrderByCondition';
 export { createPastryQuery } from './createPastryQuery';
+export { addMediaPathsToPastries } from './addMediaPathsToPastries';
+export { addGeolocationToPastries } from './addGeolocationToPastries';

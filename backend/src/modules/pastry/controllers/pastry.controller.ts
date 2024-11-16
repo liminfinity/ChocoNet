@@ -26,6 +26,7 @@ import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConsumes,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -34,9 +35,11 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { GuardUser, User } from '@/modules/user';
 import { PastryOwnershipGuard } from '../guards';
+import { COOKIES } from '@/modules/auth/constants';
 
 @ApiTags(ROUTER_PATHS.PASTRIES)
 @Controller(ROUTER_PATHS.PASTRIES)
@@ -44,9 +47,13 @@ export class PastryController {
   constructor(private readonly pastryService: PastryService) {}
 
   @ApiOperation({ summary: 'Create new pastry' })
+  @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreatePastryDto })
   @ApiCreatedResponse({ description: 'Pastry created' })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @ApiBadRequestResponse({ description: 'Data is invalid' })
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -64,6 +71,7 @@ export class PastryController {
   }
 
   @ApiOperation({ summary: 'Update pastry' })
+  @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
   @ApiParam({
     name: ROUTER_PATHS.PASTRY.slice(1),
     description: 'Pastry ID',
@@ -74,6 +82,9 @@ export class PastryController {
   @ApiBody({ type: UpdatePastryDto })
   @ApiNoContentResponse({ description: 'Pastry updated' })
   @ApiNotFoundResponse({ description: 'Pastry not found' })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @ApiForbiddenResponse({ description: 'You do not have permission to modify this pastry' })
   @Patch(ROUTER_PATHS.PASTRY)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -89,6 +100,7 @@ export class PastryController {
   }
 
   @ApiOperation({ summary: 'Delete pastry' })
+  @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
   @ApiParam({
     name: ROUTER_PATHS.PASTRY.slice(1),
     description: 'Pastry ID',
@@ -96,6 +108,9 @@ export class PastryController {
     required: true,
   })
   @ApiNoContentResponse({ description: 'Pastry deleted' })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @ApiNotFoundResponse({ description: 'Pastry not found' })
   @ApiForbiddenResponse({ description: 'You do not have permission to delete this pastry' })
   @Delete(ROUTER_PATHS.PASTRY)

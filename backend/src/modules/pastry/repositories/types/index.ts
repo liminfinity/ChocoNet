@@ -4,4 +4,5 @@ export type {
   PastryMediaRepositoryResponse,
   PastryRepositoryResponse,
   GetPastriesResponse,
+  GetPastryItemResponse,
 } from './responses';

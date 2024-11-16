@@ -21,10 +21,13 @@ export type BaseFindPastryRepositoryResponse = PastryRepositoryResponse;
 
 export type FindPastryByIdRepositoryResponse = BaseFindPastryRepositoryResponse;
 
-export type GetPastriesResponse = (Omit<Pastry, 'userId' | 'updatedAt' | 'description'> & {
+
+export type GetPastryItemResponse = (Omit<Pastry, 'userId' | 'updatedAt' | 'description'> & {
   media: PastryMediaRepositoryResponse[];
   geolocation: PastryGeolocationDto | null;
   _count: {
     likes: number;
   };
-})[];
+})
+
+export type GetPastriesResponse = GetPastryItemResponse[];
