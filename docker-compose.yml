@@ -34,6 +34,23 @@ services:
     networks:
       - app-network
     command: ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
+    
+  proxy:
+    container_name: proxy
+    image: nginx:1.24-alpine-slim
+    volumes:
+      - type: bind
+        source: ./nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
 
 networks:
   app-network:
