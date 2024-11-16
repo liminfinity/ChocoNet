@@ -5,7 +5,13 @@ import { ROUTER_PATHS } from '../constants';
 import { PhoneVerificationService } from '../services';
 import { JwtAuthGuard } from '@/modules/auth';
 import { VerifyCodeDto } from '../dto';
-import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { GuardUser } from '@/modules/user';
 import { COOKIES } from '@/modules/auth/constants';
 

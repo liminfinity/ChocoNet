@@ -1,3 +1,3 @@
-import { GetPastryQueriesDto } from "@/modules/pastry/dto";
+import { GetPastryQueriesDto } from '@/modules/pastry/dto';
 
-export class GetLikedPastryQueriesDto extends GetPastryQueriesDto {};
+export class GetLikedPastryQueriesDto extends GetPastryQueriesDto {}

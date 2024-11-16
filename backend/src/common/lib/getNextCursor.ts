@@ -6,4 +6,4 @@
  */
 export const getNextCursor = <T extends { id: string }>(data: T[]): string | undefined => {
   return data.length > 0 ? data[data.length - 1]?.id : undefined;
-}
+};

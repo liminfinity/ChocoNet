@@ -1,4 +1,4 @@
-import { joinPaths } from '@/common/lib';
+import { deleteLeadingColonFromPath, joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as PASTRY_ROUTER_PATHS } from '@/modules/pastry/constants';
 import {
   Controller,
@@ -44,7 +44,7 @@ export class PastryLikeController {
     summary: 'Create a like for a pastry',
   })
   @ApiParam({
-    name: ROUTER_PATHS.PASTRY.slice(1),
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY),
     description: 'Pastry ID',
     example: '1',
     required: true,
@@ -64,7 +64,7 @@ export class PastryLikeController {
   @Post(ROUTER_PATHS.PASTRY)
   async createLike(
     @GuardUser('id') userId: string,
-    @Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string,
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY)) pastryId: string,
   ): Promise<void> {
     return this.pastryLikeService.createLike(pastryId, userId);
   }
@@ -73,7 +73,7 @@ export class PastryLikeController {
     summary: 'Delete a like for a pastry',
   })
   @ApiParam({
-    name: ROUTER_PATHS.PASTRY.slice(1),
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY),
     description: 'Pastry ID',
     example: '1',
     required: true,
@@ -94,7 +94,7 @@ export class PastryLikeController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteLike(
     @GuardUser('id') userId: string,
-    @Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string,
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY)) pastryId: string,
   ): Promise<void> {
     return this.pastryLikeService.deleteLike(pastryId, userId);
   }
