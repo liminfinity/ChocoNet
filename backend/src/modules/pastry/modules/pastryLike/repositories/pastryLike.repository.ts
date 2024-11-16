@@ -1,5 +1,9 @@
 import { DatabaseService } from '@/common/modules';
 import { Injectable } from '@nestjs/common';
+import { GetLikedPastryQueriesDto } from '../dto';
+import { createPastryQuery } from '@/modules/pastry/lib';
+import { GetLikedPastriesResponse } from './types';
+import { createLikedPastryWhereCondition } from '../lib';
 
 @Injectable()
 export class PastryLikeRepository {
@@ -57,5 +61,50 @@ export class PastryLikeRepository {
     });
 
     return !!like;
+  }
+
+  /**
+   * Retrieves a list of pastries that the given user has liked.
+   *
+   * @param queryDto - The query parameters for fetching liked pastries.
+   * @param userId - The ID of the user whose liked pastries to retrieve.
+   * @returns A promise that resolves to an object containing the list of liked
+   *          pastries and a cursor for pagination.
+   */
+  async getLikedPastries(
+    queryDto: GetLikedPastryQueriesDto,
+    userId: string,
+  ): Promise<GetLikedPastriesResponse> {
+    const pastryQuery = createPastryQuery(queryDto);
+
+    pastryQuery.where = createLikedPastryWhereCondition(userId, pastryQuery.where);
+
+    return this.databaseService.pastry.findMany({
+      ...pastryQuery,
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        unit: true,
+        createdAt: true,
+        geolocation: {
+          select: {
+            lat: true,
+            lng: true,
+          },
+        },
+        media: {
+          select: {
+            id: true,
+            filename: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
+      },
+    });
   }
 }

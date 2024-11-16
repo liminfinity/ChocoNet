@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -30,7 +29,6 @@ import {
   ApiConsumes,
   ApiCookieAuth,
   ApiCreatedResponse,
-  ApiExcludeEndpoint,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -76,11 +74,12 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Logout user' })
+  @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
   @ApiNoContentResponse({ description: 'User logged out' })
   @ApiUnauthorizedResponse({ description: 'Refresh token not found' })
-  @ApiCookieAuth(COOKIES.REFRESH_TOKEN)
   @Post(ROUTER_PATHS.LOGOUT)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     const refreshToken: string | undefined = req.signedCookies[COOKIES.REFRESH_TOKEN];
 
@@ -173,15 +172,5 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async requestNewCode(@Body() requestCodeDto: RequestCodeDto): Promise<void> {
     return this.authService.requestNewCode(requestCodeDto);
-  }
-
-  @ApiExcludeEndpoint()
-  @Get('ping')
-  @UseGuards(JwtAuthGuard)
-  async ping(@Req() req: Request): Promise<{ message: 'pong' }> {
-    console.log(req.user);
-    return {
-      message: 'pong',
-    };
   }
 }

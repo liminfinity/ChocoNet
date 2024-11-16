@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PastryRepository } from '../repositories';
 import { CreatePastryDto, GetPastriesDto, GetPastryQueriesDto, UpdatePastryDto } from '../dto';
 import { CreatePastryResponse } from '../types';
-import { getPathToPastryMedia, mapCategoriesToObjectArray, mapPastryMediaToPaths } from '../lib';
-import { mapFilesToFilenames } from '@/common/lib';
+import { addGeolocationToPastries, addMediaPathsToPastries, getPathToPastryMedia, mapCategoriesToObjectArray, mapPastryMediaToPaths } from '../lib';
+import { getNextCursor, mapFilesToFilenames } from '@/common/lib';
 import { CreatePastryRepositoryRequest } from '../repositories';
 import {
   FindPastryByIdServiceResponse,
@@ -168,33 +168,13 @@ export class PastryService {
   async getPastries(query: GetPastryQueriesDto, userId?: string): Promise<GetPastriesDto> {
     const pastries = await this.pastryRepository.getPastries(query);
 
-    const pastriesWithPaths = pastries.map((pastry) => ({
-      ...pastry,
-      media: mapPastryMediaToPaths(pastry.media),
-    }));
+    const pastriesWithPaths = addMediaPathsToPastries(pastries);
 
-    const nextCursor =
-      pastriesWithPaths.length > 0 ? pastriesWithPaths[pastries.length - 1]?.id : undefined;
+    const nextCursor = getNextCursor(pastriesWithPaths);
 
-    const pastriesWithGeolocation = await Promise.all(
-      pastriesWithPaths.map(async ({ geolocation, ...pastry }) => {
-        if (!geolocation) {
-          return {
-            ...pastry,
-            geolocation: null,
-          };
-        }
-        const { lat, lng } = geolocation;
-        const { formatted } = await this.geolocationService.getGeolocationByCoords(lat, lng);
-        return {
-          ...pastry,
-          geolocation: {
-            lat,
-            lng,
-            formatted,
-          },
-        };
-      }),
+    const pastriesWithGeolocation = await addGeolocationToPastries(
+      pastriesWithPaths,
+      this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
     );
 
     if (userId) {
