@@ -8,6 +8,7 @@ export const mockRepositoryUser: NonNullable<BaseFindUserRepositoryResponse> = {
   id: faker.string.uuid(),
   email: faker.internet.email(),
   password: faker.internet.password(),
+  nickname: faker.internet.username(),
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),
   phone: faker.phone.number(),
@@ -34,6 +35,7 @@ export const mockServiceUser: NonNullable<BaseFindUserServiceResponse> = {
 export const mockCreateUserRequest: CreateUserRequest = {
   email: faker.internet.email(),
   password: faker.internet.password(),
+  nickname: faker.internet.username(),
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),
   phone: faker.phone.number(),

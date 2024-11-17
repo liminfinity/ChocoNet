@@ -25,6 +25,7 @@ export const mockUser: NonNullable<BaseFindUserServiceResponse> = {
   email: faker.internet.email(),
   password: faker.internet.password(),
   firstName: faker.person.firstName(),
+  nickname: faker.internet.username(),
   lastName: faker.person.lastName(),
   phone: faker.phone.number(),
   about: faker.person.bio(),

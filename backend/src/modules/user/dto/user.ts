@@ -17,6 +17,12 @@ export class UserDto implements Omit<User, 'password' | 'updatedAt' | 'id'> {
   phone!: string;
 
   @ApiProperty({
+    description: 'User nickname',
+    example: 'JohnDoe',
+  })
+  nickname!: string;
+
+  @ApiProperty({
     description: 'User first name',
     example: 'John',
   })
