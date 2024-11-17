@@ -82,4 +82,32 @@ export class UserFollowController {
   ): Promise<void> {
     return this.userFollowService.unfollow(followerId, followingId);
   }
+
+  @ApiOperation({ summary: 'Unfollow from you' })
+  @ApiParam({
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.FOLLOWING),
+    description: 'The following ID',
+    example: '1',
+    required: true,
+  })
+  @ApiCreatedResponse({
+    description: 'Successfully unfollowed from you',
+  })
+  @ApiNotFoundResponse({
+    description: 'Follower user not found',
+  })
+  @ApiForbiddenResponse({
+    description: 'You cannot unfollow yourself',
+  })
+  @ApiConflictResponse({
+    description: 'This user is not following you',
+  })
+  @Delete(joinPaths(ROUTER_PATHS.UNFOLLOW_FROM_YOU,ROUTER_PATHS.FOLLOWING))
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unfollowFromYou(
+    @GuardUser('id') followerId: string,
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.FOLLOWING)) followingId: string,
+  ): Promise<void> {
+    return this.userFollowService.unfollowFromYou(followingId, followerId);
+  }
 }
