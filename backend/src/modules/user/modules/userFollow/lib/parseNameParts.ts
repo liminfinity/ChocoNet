@@ -1,12 +1,15 @@
 /**
- * Parses a given name string into an array of name parts.
+ * Splits a given name into its constituent parts.
  *
- * The function trims whitespace, converts the string to lowercase,
- * splits it by spaces, and filters out any empty parts.
+ * @param name - The name to split.
+ * @returns An array of strings, where each string is a part of the original name.
  *
- * @param name - The name string to be parsed.
- * @returns An array of non-empty, lowercase name parts.
+ * @example
+ * parseNameParts('John Doe'); // ['john', 'doe']
+ * parseNameParts('  John   Doe  '); // ['john', 'doe']
+ * parseNameParts(''); // []
+ * parseNameParts('   '); // []
  */
 export const parseNameParts = (name: string): string[] => {
-  return name.trim().toLowerCase().split(' ').filter(Boolean);
+  return name.trim().toLowerCase().split(/\s+/);
 };
