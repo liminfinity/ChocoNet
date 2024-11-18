@@ -1,2 +1,2 @@
-export { SendEmailDto } from './sendEmail';
-export { UpdatePasswordDto } from './updatePassword';
+export { SendEmailDto } from './sendEmail.dto';
+export { UpdatePasswordDto } from './updatePassword.dto';

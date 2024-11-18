@@ -1,2 +1,2 @@
-export { GetLikedPastryQueriesDto } from './getLikedPastryQueries';
-export { GetLikedPastriesDto } from './getLikedPastries';
+export { GetLikedPastryQueriesDto } from './getLikedPastryQueries.dto';
+export { GetLikedPastriesDto } from './getLikedPastries.dto';

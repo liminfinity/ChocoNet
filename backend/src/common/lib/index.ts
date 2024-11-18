@@ -8,3 +8,5 @@ export { deletePlusFromPhone } from './deletePlusFromPhone';
 export { mapFilesToFilenames } from './mapFilesToFilenames';
 export { kmToMeters } from './kmToMeters';
 export { getNextCursor } from './getNextCursor';
+export { deleteLeadingColonFromPath } from './deleteLeadingColonFromPath';
+export { createPaginationCondition } from './createPaginationCondition';

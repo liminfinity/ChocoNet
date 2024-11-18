@@ -1,5 +1,4 @@
-export { CreatePastryDto } from './createPastry';
-export { UpdatePastryDto } from './updatePastry';
-export { GetPastryQueriesDto } from './getPastryQueries';
-export { GetPastriesDto, PastryDto } from './getPastries';
-export { GetBasePastriesDto } from './getBasePastries';
+export { CreatePastryDto } from './createPastry.dto';
+export { UpdatePastryDto } from './updatePastry.dto';
+export { GetPastryQueriesDto } from './getPastryQueries.dto';
+export { GetPastriesDto, PastryDto } from './getPastries.dto';

@@ -9,7 +9,7 @@ import {
 } from './common/configs';
 import { MorganMiddleware } from './common/middlewares';
 import { UserModule } from './modules/user';
-import { PhoneVerificationModule } from './modules/user/modules';
+import { PhoneVerificationModule, UserFollowModule } from './modules/user/modules';
 import { PastryModule } from './modules/pastry';
 
 @Module({
@@ -23,6 +23,7 @@ import { PastryModule } from './modules/pastry';
     AuthModule,
     UserModule,
     PhoneVerificationModule,
+    UserFollowModule,
     PastryModule,
   ],
   controllers: [],

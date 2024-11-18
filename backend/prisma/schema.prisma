@@ -11,6 +11,7 @@ model User {
   id                String             @id @default(uuid()) @db.Uuid
   email             String             @unique @db.VarChar(255)
   password          String
+  nickname          String             @unique @db.VarChar(255)
   firstName         String             @map("first_name")
   lastName          String             @map("last_name")
   phone             String
@@ -24,6 +25,8 @@ model User {
   pastryLikes       PastryLike[]
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
+  followers         UserFollow[]       @relation("UserFollower")
+  following         UserFollow[]       @relation("UserFollowing")
 
   @@map("users")
 }
@@ -90,6 +93,19 @@ model PhoneVerification {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("phone_verification")
+}
+
+model UserFollow {
+  id          String   @id @default(uuid()) @db.Uuid
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  follower    User     @relation("UserFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([followerId, followingId])
+  @@map("user_follows")
 }
 
 model Pastry {

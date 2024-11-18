@@ -1,14 +1,23 @@
 import { User } from '@prisma/client';
 import { IsOptional, IsPhoneNumber, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AuthDto } from './auth';
+import { AuthDto } from './auth.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { GeolocationDto } from '@/modules/user/dto';
+import { IsNickname } from '../decorators';
 
 export class RegisterDto
   extends AuthDto
-  implements Pick<User, 'firstName' | 'lastName' | 'phone' | 'about'>
+  implements Pick<User, 'firstName' | 'lastName' | 'nickname' | 'phone' | 'about'>
 {
+  @ApiProperty({
+    description: 'User nickname',
+    example: 'JohnDoe',
+    required: true,
+  })
+  @IsNickname()
+  nickname!: string;
+
   @ApiProperty({
     description: 'User first name',
     example: 'John',

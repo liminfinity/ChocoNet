@@ -15,6 +15,7 @@ export const mockUser: BaseFindUserServiceResponse = {
   id: faker.string.uuid(),
   email: faker.internet.email(),
   password: faker.internet.password(),
+  nickname: faker.internet.username(),
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),
   phone: faker.phone.number(),
@@ -36,6 +37,7 @@ export const mockUser: BaseFindUserServiceResponse = {
 export const mockRegister: RegisterDto = {
   email: faker.internet.email(),
   password: faker.internet.password(),
+  nickname: faker.internet.username(),
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),
   phone: faker.phone.number(),

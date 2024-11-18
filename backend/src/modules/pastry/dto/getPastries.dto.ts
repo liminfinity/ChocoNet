@@ -1,8 +1,8 @@
 import { Pastry, PastryUnit } from '@prisma/client';
-import { PastryGeolocationDto } from './geolocation';
+import { PastryGeolocationDto } from './geolocation.dto';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { MediaDto } from './media';
-import { GetBasePastriesDto } from './getBasePastries';
+import { MediaDto } from './media.dto';
+import { GetListDto } from '@/common/dto';
 
 export class PastryDto implements Pick<Pastry, 'id' | 'createdAt' | 'name' | 'price' | 'unit'> {
   @ApiProperty({
@@ -74,7 +74,7 @@ class AuthenticatedPastryDto extends PastryDto {
 }
 
 @ApiExtraModels(AuthenticatedPastryDto, PastryDto)
-export class GetPastriesDto extends GetBasePastriesDto {
+export class GetPastriesDto extends GetListDto {
   @ApiProperty({
     description: 'List of pastries',
     isArray: true,

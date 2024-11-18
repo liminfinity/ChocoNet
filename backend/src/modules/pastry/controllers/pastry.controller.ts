@@ -19,7 +19,7 @@ import { ROUTER_PATHS } from '../constants';
 import { CreatePastryDto, GetPastryQueriesDto, UpdatePastryDto, GetPastriesDto } from '../dto';
 import { MediaInterceptor } from '../interceptors';
 import { Response } from 'express';
-import { joinPaths } from '@/common/lib';
+import { deleteLeadingColonFromPath, joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as BASE_ROUTER_PATHS } from '@/common/constants';
 import { JwtAuthGuard, UserFromToken } from '@/modules/auth';
 import {
@@ -73,7 +73,7 @@ export class PastryController {
   @ApiOperation({ summary: 'Update pastry' })
   @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
   @ApiParam({
-    name: ROUTER_PATHS.PASTRY.slice(1),
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY),
     description: 'Pastry ID',
     example: '1',
     required: true,
@@ -91,7 +91,7 @@ export class PastryController {
   @UseGuards(JwtAuthGuard, PastryOwnershipGuard)
   @UseInterceptors(MediaInterceptor)
   async update(
-    @Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string,
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY)) pastryId: string,
     @Body() updatePastryDto: UpdatePastryDto,
     @UploadedFiles() media: Express.Multer.File[],
   ): Promise<void> {
@@ -102,7 +102,7 @@ export class PastryController {
   @ApiOperation({ summary: 'Delete pastry' })
   @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
   @ApiParam({
-    name: ROUTER_PATHS.PASTRY.slice(1),
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY),
     description: 'Pastry ID',
     example: '1',
     required: true,
@@ -116,7 +116,9 @@ export class PastryController {
   @Delete(ROUTER_PATHS.PASTRY)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard, PastryOwnershipGuard)
-  async delete(@Param(ROUTER_PATHS.PASTRY.slice(1)) pastryId: string): Promise<void> {
+  async delete(
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY)) pastryId: string,
+  ): Promise<void> {
     return this.pastryService.delete(pastryId);
   }
 
