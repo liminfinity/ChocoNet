@@ -3,6 +3,7 @@ import { GetPastryQueriesDto } from '../dto';
 import { createPastryWhereCondition } from './createPastryWhereCondition';
 import pick from 'lodash.pick';
 import { createPastryOrderByCondition } from './createPastryOrderByCondition';
+import { createPaginationCondition } from '@/common/lib';
 
 /**
  * Creates a Prisma query object for fetching pastries.
@@ -24,20 +25,8 @@ export const createPastryQuery = ({
   const queryCondition: Prisma.PastryFindManyArgs = {
     where,
     orderBy,
+    ...createPaginationCondition(pagination),
   };
-
-  if (pagination) {
-    const { limit, cursor } = pagination;
-
-    queryCondition.take = limit;
-    queryCondition.skip = cursor ? 1 : 0;
-
-    if (cursor) {
-      queryCondition.cursor = {
-        id: cursor,
-      };
-    }
-  }
 
   return queryCondition;
 };

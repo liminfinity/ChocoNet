@@ -6,17 +6,29 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ROUTER_PATHS } from '../constants';
-import { Controller, Delete, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '@/modules/auth';
 import { COOKIES } from '@/modules/auth/constants';
 import { UserFollowService } from '../services';
 import { GuardUser } from '@/modules/user';
+import { GetFollowQueriesDto, GetFollowsDto } from '../dto';
 
 @ApiTags(joinPaths(USER_ROUTER_PATHS.USERS, ROUTER_PATHS.FOLLOWS))
 @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
@@ -102,12 +114,24 @@ export class UserFollowController {
   @ApiConflictResponse({
     description: 'This user is not following you',
   })
-  @Delete(joinPaths(ROUTER_PATHS.UNFOLLOW_FROM_YOU,ROUTER_PATHS.FOLLOWING))
+  @Delete(joinPaths(ROUTER_PATHS.UNFOLLOW_FROM_YOU, ROUTER_PATHS.FOLLOWING))
   @HttpCode(HttpStatus.NO_CONTENT)
   async unfollowFromYou(
     @GuardUser('id') followerId: string,
     @Param(deleteLeadingColonFromPath(ROUTER_PATHS.FOLLOWING)) followingId: string,
   ): Promise<void> {
     return this.userFollowService.unfollowFromYou(followingId, followerId);
+  }
+
+  @ApiOperation({ summary: 'Get follows' })
+  @ApiOkResponse({
+    description: 'Successfully got follows',
+  })
+  @Get()
+  async getFollows(
+    @Query() query: GetFollowQueriesDto,
+    @GuardUser('id') userId: string,
+  ): Promise<GetFollowsDto> {
+    return this.userFollowService.getFollows(query, userId);
   }
 }

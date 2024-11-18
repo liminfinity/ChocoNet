@@ -1,3 +1,3 @@
-export { UserDto } from './user';
-export { AvatarDto } from './avatar';
-export { GeolocationDto } from './geolocation';
+export { UserDto } from './user.dto';
+export { AvatarDto } from './avatar.dto';
+export { GeolocationDto } from './geolocation.dto';

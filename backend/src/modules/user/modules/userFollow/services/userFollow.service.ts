@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { UserFollowRepository } from '../repositories';
 import { UserService } from '@/modules/user/services';
+import { GetFollowQueriesDto, GetFollowsDto } from '../dto';
+import { addAvatarPathToFollows } from '../lib';
+import { getNextCursor } from '@/common/lib';
 
 @Injectable()
 export class UserFollowService {
@@ -113,5 +116,26 @@ export class UserFollowService {
    */
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
     return this.userFollowRepository.isFollowing(followerId, followingId);
+  }
+
+  /**
+   * Retrieves a list of follow relationships for a given user based on query parameters.
+   *
+   * @param query - The query parameters for fetching follow relationships, including follow type, order, and pagination.
+   * @param userId - The ID of the user whose follow relationships are being retrieved.
+   * @returns A promise that resolves to a response containing the list of follow relationships with user details and a creation date.
+   *          The response also includes a next cursor value for pagination.
+   */
+  async getFollows(query: GetFollowQueriesDto, userId: string): Promise<GetFollowsDto> {
+    const follows = await this.userFollowRepository.getFollows(query, userId);
+
+    const followsWithAvatarPath = addAvatarPathToFollows(follows);
+
+    const nextCursor = getNextCursor(followsWithAvatarPath);
+
+    return {
+      data: followsWithAvatarPath,
+      nextCursor,
+    };
   }
 }

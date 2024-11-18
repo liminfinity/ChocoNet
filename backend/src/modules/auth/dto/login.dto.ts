@@ -1,5 +1,5 @@
 import { IsBoolean, IsOptional } from 'class-validator';
-import { AuthDto } from './auth';
+import { AuthDto } from './auth.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginDto extends AuthDto {

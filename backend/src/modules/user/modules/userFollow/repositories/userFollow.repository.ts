@@ -1,5 +1,8 @@
 import { DatabaseService } from '@/common/modules';
 import { Injectable } from '@nestjs/common';
+import { createFollowQuery } from '../lib';
+import { FollowType, GetFollowQueriesDto } from '../dto';
+import { GetFollowsResponse } from './types';
 
 @Injectable()
 export class UserFollowRepository {
@@ -57,5 +60,81 @@ export class UserFollowRepository {
     });
 
     return !!isFollowing;
+  }
+
+  /**
+   * Retrieves a list of follow relationships for a given user based on query parameters.
+   *
+   * @param queryDto - The query parameters for fetching follow relationships, including follow type, order, and pagination.
+   * @param userId - The ID of the user whose follow relationships are being retrieved.
+   * @returns A promise that resolves to a response containing the list of follow relationships with user details and a creation date.
+   */
+  async getFollows(queryDto: GetFollowQueriesDto, userId: string): Promise<GetFollowsResponse> {
+
+    const followQuery = createFollowQuery(queryDto);
+
+    const isFollowerSelected = queryDto.followType === FollowType.FOLLOWER;
+
+    const followId = isFollowerSelected ? 'followingId' : 'followerId';
+
+    followQuery.where = {
+      ...followQuery.where,
+      [followId]: userId,
+    };
+
+    const res = await this.databaseService.userFollow.findMany({
+      ...followQuery,
+      select: {
+        id: true,
+        createdAt: true,
+        follower: {
+          select: {
+            id: true,
+            nickname: true,
+            firstName: true,
+            lastName: true,
+            avatars: {
+              take: 1,
+              select: {
+                id: true,
+                filename: true,
+              },
+            },
+          },
+        },
+        following: {
+          select: {
+            id: true,
+            nickname: true,
+            firstName: true,
+            lastName: true,
+            avatars: {
+              take: 1,
+              select: {
+                id: true,
+                filename: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const follows = res.map(({ follower, following, ...folowDetails }) => {
+      const user = isFollowerSelected ? follower : following;
+
+      const { avatars, ...userDetails } = user;
+      const userWithOneAvatar = {
+        ...userDetails,
+        avatar: avatars.length > 0 ? avatars[0] : null,
+      };
+
+      return {
+        ...folowDetails,
+        user: userWithOneAvatar,
+      };
+    });
+
+    return follows;
   }
 }

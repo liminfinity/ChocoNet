@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
-import { GeolocationDto } from './geolocation';
-import { AvatarDto } from './avatar';
+import { GeolocationDto } from './geolocation.dto';
+import { AvatarDto } from './avatar.dto';
 
 export class UserDto implements Omit<User, 'password' | 'updatedAt' | 'id'> {
   @ApiProperty({

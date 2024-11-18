@@ -1,4 +1,4 @@
-export { LoginDto } from './login';
-export { RegisterDto } from './register';
-export { VerifyCodeDto } from './verifyCode';
-export { RequestCodeDto } from './requestCode';
+export { LoginDto } from './login.dto';
+export { RegisterDto } from './register.dto';
+export { VerifyCodeDto } from './verifyCode.dto';
+export { RequestCodeDto } from './requestCode.dto';

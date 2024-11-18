@@ -9,18 +9,19 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
-  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Order, OrderBy } from '../types';
+import { OrderBy } from '../types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PaginationQueriesDto } from '@/common/dto';
+import { Order } from '@/common/types';
 
 class PriceQueriesDto {
   @ApiPropertyOptional({
     description: 'Minimum price',
     example: 42,
+    default: 0,
   })
   @IsOptional()
   @IsNumber()
@@ -58,6 +59,7 @@ class GeolocationQueriesDto {
   @ApiPropertyOptional({
     description: 'Search radius in kilometers',
     example: 5,
+    default: 150,
   })
   @IsOptional()
   @IsNumber()
@@ -65,35 +67,15 @@ class GeolocationQueriesDto {
   radius = 150;
 }
 
-class PaginationQueriesDto {
-  @ApiPropertyOptional({
-    description: 'Cursor for pagination (uuid v4)',
-    example: '123e4567-e89b-12d3-a456-426655440000',
-  })
-  @IsOptional()
-  @IsUUID('4')
-  cursor?: string;
-
-  @ApiPropertyOptional({
-    description: 'Limit for pagination',
-    example: 10,
-  })
-  @IsOptional()
-  @IsNumber()
-  @Min(10)
-  @Max(100)
-  @Type(() => Number)
-  limit = 10;
-}
-
 export class GetPastryQueriesDto {
   @ApiPropertyOptional({
     description: 'Search query',
     example: 'Cake',
+    default: '',
   })
   @IsOptional()
   @IsString()
-  search?: string;
+  search: string = '';
 
   @ApiPropertyOptional({
     description: 'List of categories',
@@ -128,6 +110,7 @@ export class GetPastryQueriesDto {
     description: 'Order by',
     enum: ['price', 'createdAt', 'popularity'],
     example: 'price',
+    default: 'popularity',
   })
   @IsOptional()
   @IsString()
@@ -138,6 +121,7 @@ export class GetPastryQueriesDto {
     description: 'Order',
     enum: ['asc', 'desc'],
     example: 'asc',
+    default: 'asc',
   })
   @IsOptional()
   @IsString()
@@ -147,9 +131,10 @@ export class GetPastryQueriesDto {
   @ApiPropertyOptional({
     description: 'Pagination queries',
     example: { limit: 10, cursor: '123e4567-e89b-12d3-a456-426655440000' },
+    default: { limit: 10 },
   })
   @IsOptional()
   @ValidateNested()
   @Type(() => PaginationQueriesDto)
-  pagination?: PaginationQueriesDto;
+  pagination: PaginationQueriesDto = new PaginationQueriesDto();
 }

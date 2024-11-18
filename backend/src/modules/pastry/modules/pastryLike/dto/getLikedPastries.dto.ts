@@ -1,7 +1,8 @@
-import { GetBasePastriesDto, PastryDto } from '@/modules/pastry/dto';
+import { GetListDto } from '@/common/dto';
+import { PastryDto } from '@/modules/pastry/dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class GetLikedPastriesDto extends GetBasePastriesDto {
+export class GetLikedPastriesDto extends GetListDto {
   @ApiProperty({
     description: 'List of pastries',
     isArray: true,

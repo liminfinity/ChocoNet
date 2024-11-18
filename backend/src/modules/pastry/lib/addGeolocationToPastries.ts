@@ -1,5 +1,5 @@
 import { GeolocationService } from '@/common/modules';
-import { PastryGeolocationDto } from '../dto/geolocation';
+import { PastryGeolocationDto } from '../dto/geolocation.dto';
 import { GetPastryItemResponse } from '../repositories/types';
 import { PastryMediaServiceResponse } from '../services/types';
 
