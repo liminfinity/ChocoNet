@@ -13,7 +13,7 @@ export const sortPastriesByRelevance = (
   similarPastries: GetSimilarPastriesResponse,
   { categories, name }: Omit<PastryForGettingSimilar, 'id'>,
 ): GetSimilarPastriesResponse => {
-  const pastryNameParts = parseNameParts(name.toLowerCase());
+  const pastryNameParts = parseNameParts(name);
 
   return similarPastries.sort((a, b) => {
     const aHasCategory = a.categories.some((category) => categories.includes(category));
