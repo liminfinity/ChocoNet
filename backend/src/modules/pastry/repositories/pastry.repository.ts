@@ -61,13 +61,11 @@ export class PastryRepository {
    * @returns A promise that resolves to the found pastry, or null if it does not exist.
    */
   async findById(pastryId: string): Promise<FindPastryByIdRepositoryResponse | null> {
-    return this.databaseService.pastry.findUnique({
+    const pastry = await this.databaseService.pastry.findUnique({
       where: {
         id: pastryId,
       },
       select: {
-        id: true,
-        userId: true,
         name: true,
         description: true,
         price: true,
@@ -93,7 +91,6 @@ export class PastryRepository {
         updatedAt: true,
         categories: {
           select: {
-            id: true,
             category: true,
           },
         },
@@ -102,6 +99,8 @@ export class PastryRepository {
             id: true,
             firstName: true,
             lastName: true,
+            nickname: true,
+            createdAt: true,
           },
         },
         _count: {
@@ -111,6 +110,15 @@ export class PastryRepository {
         },
       },
     });
+
+    if (!pastry) {
+      return null;
+    }
+
+    return {
+      ...pastry,
+      categories: pastry.categories.map((category) => category.category),
+    };
   }
 
   /**

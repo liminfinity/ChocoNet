@@ -1,17 +1,15 @@
-import { Pastry, PastryCategory, PastryMedia, User } from '@prisma/client';
+import { Pastry, PastryCategoryEnum, PastryMedia, User } from '@prisma/client';
 import { PastryGeolocationDto } from '../../dto/geolocation.dto';
 import { PastryContactDto } from '../../dto/contact.dto';
 
 export type PastryMediaRepositoryResponse = Pick<PastryMedia, 'filename' | 'id'>;
 
-export type PastryCategoryRepositoryResponse = Pick<PastryCategory, 'category' | 'id'>;
-
-export type PastryRepositoryResponse = Omit<Pastry, 'userId'> & {
+export type PastryRepositoryResponse = Omit<Pastry, 'userId' | 'id'> & {
   geolocation: PastryGeolocationDto | null;
   contact: PastryContactDto | null;
   media: PastryMediaRepositoryResponse[];
-  categories: PastryCategoryRepositoryResponse[];
-  user: Pick<User, 'id' | 'firstName' | 'lastName'>;
+  categories: PastryCategoryEnum[];
+  user: Pick<User, 'id' | 'firstName' | 'lastName' | 'nickname' | 'createdAt'>;
   _count: {
     likes: number;
   };

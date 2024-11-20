@@ -1,6 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PastryRepository } from '../repositories';
-import { CreatePastryDto, GetPastriesDto, GetPastryQueriesDto, UpdatePastryDto } from '../dto';
+import {
+  CreatePastryDto,
+  GetPastriesDto,
+  GetPastryAutorizedDto,
+  GetPastryGuestDto,
+  GetPastryOwnerDto,
+  GetPastryQueriesDto,
+  UpdatePastryDto,
+} from '../dto';
 import { CreatePastryResponse } from '../types';
 import {
   addGeolocationToPastries,
@@ -11,17 +19,13 @@ import {
 } from '../lib';
 import { getNextCursor, mapFilesToFilenames } from '@/common/lib';
 import { CreatePastryRepositoryRequest } from '../repositories';
-import {
-  FindPastryByIdServiceResponse,
-  OwnerFindPastryByIdServiceResponse,
-  PublicFindPastryByIdServiceResponse,
-} from './types';
 import { PastryLikeService } from '../modules/pastryLike';
 import { UpdatePastryRepositoryRequest } from '../repositories/types';
 import { PastryMediaService } from '../modules/pastryMedia';
 import { rm } from 'node:fs/promises';
-import omit from 'lodash.omit';
 import { GeolocationService } from '@/common/modules';
+import { getFormattedGeolocation } from '../lib/getFormattedGeolocation';
+import omit from 'lodash.omit';
 
 @Injectable()
 export class PastryService {
@@ -61,44 +65,59 @@ export class PastryService {
   }
 
   /**
-   * Finds a pastry by ID.
+   * Finds a pastry by its ID and formats the response based on the user's role.
    *
    * @param pastryId - The ID of the pastry to find.
-   * @param userId - The ID of the user making the request.
-   * @returns A promise that resolves to an object containing the pastry details, or null if the pastry does not exist.
-   *          If the user is the owner of the pastry, the response will contain the pastry details with the user field omitted.
-   *          If the user is not the owner of the pastry, the response will contain the pastry details, as well as a boolean indicating
-   *          whether the user has liked the pastry.
+   * @param userId - The optional ID of the user making the request.
+   * @returns A promise that resolves to one of the following DTOs:
+   *   - GetPastryOwnerDto if the requested user is the owner of the pastry.
+   *   - GetPastryAutorizedDto if the user is logged in but not the owner.
+   *   - GetPastryGuestDto if no user is logged in.
+   * @throws NotFoundException if no pastry is found with the given ID.
    */
   async findById(
     pastryId: string,
-    userId: string,
-  ): Promise<OwnerFindPastryByIdServiceResponse | PublicFindPastryByIdServiceResponse | null> {
+    userId?: string,
+  ): Promise<GetPastryAutorizedDto | GetPastryGuestDto | GetPastryOwnerDto> {
     const pastry = await this.pastryRepository.findById(pastryId);
-
     if (!pastry) {
-      return null;
+      throw new NotFoundException('Pastry not found');
     }
 
-    const baseResponse: FindPastryByIdServiceResponse = {
-      ...pastry,
-      media: mapPastryMediaToPaths(pastry.media),
+    const { geolocation, media, user, ...pastryDetails } = pastry;
+
+    const pastryWithMediaPaths = { ...pastryDetails, media: mapPastryMediaToPaths(media) };
+
+    const [geolocationDto, isLiked] = await Promise.all([
+      getFormattedGeolocation(
+        geolocation,
+        this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
+      ),
+      userId ? this.pastryLikeService.isLiked(pastryId, userId) : null,
+    ]);
+
+    const pastryDto = geolocationDto
+      ? { ...pastryWithMediaPaths, geolocation: geolocationDto }
+      : { ...pastryWithMediaPaths, geolocation: null };
+
+    // Проверка на владельца
+    if (user.id === userId) {
+      return pastryDto;
+    }
+
+    // Публичное DTO не для владельцев
+    const publicPastryDto = {
+      ...omit(pastryDto, ['updatedAt']),
+      owner: user,
     };
 
-    if (pastry.user.id !== userId) {
-      const isLiked = await this.pastryLikeService.isLiked(pastryId, userId);
-
-      const publicResponse: PublicFindPastryByIdServiceResponse = {
-        ...baseResponse,
-        isLiked,
-      };
-
-      return publicResponse;
-    } else {
-      const ownerResponse: OwnerFindPastryByIdServiceResponse = omit(baseResponse, ['user']);
-
-      return ownerResponse;
+    // Если пользователь авторизован, добавляем информацию о лайке
+    if (userId && isLiked !== null) {
+      return { ...publicPastryDto, isLiked };
     }
+
+    // Если пользователь не авторизован
+    return publicPastryDto;
   }
 
   /**

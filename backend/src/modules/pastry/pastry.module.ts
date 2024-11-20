@@ -9,6 +9,7 @@ import { AuthMiddleware } from '../auth';
 import { ROUTER_PATHS } from './constants';
 import { GeolocationModule } from '@/common/modules';
 import { JwtTokenModule } from '../auth/modules';
+import { joinPaths } from '@/common/lib';
 
 @Module({
   imports: [
@@ -25,9 +26,15 @@ import { JwtTokenModule } from '../auth/modules';
 })
 export class PastryModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: ROUTER_PATHS.PASTRIES,
-      method: RequestMethod.ALL,
-    });
+    consumer.apply(AuthMiddleware).forRoutes(
+      {
+        path: ROUTER_PATHS.PASTRIES,
+        method: RequestMethod.GET,
+      },
+      {
+        path: joinPaths(ROUTER_PATHS.PASTRIES, ROUTER_PATHS.PASTRY),
+        method: RequestMethod.GET,
+      },
+    );
   }
 }

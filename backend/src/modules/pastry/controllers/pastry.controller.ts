@@ -16,7 +16,15 @@ import {
 } from '@nestjs/common';
 import { PastryService } from '../services';
 import { ROUTER_PATHS } from '../constants';
-import { CreatePastryDto, GetPastryQueriesDto, UpdatePastryDto, GetPastriesDto } from '../dto';
+import {
+  CreatePastryDto,
+  GetPastryQueriesDto,
+  UpdatePastryDto,
+  GetPastriesDto,
+  GetPastryAutorizedDto,
+  GetPastryGuestDto,
+  GetPastryOwnerDto,
+} from '../dto';
 import { MediaInterceptor } from '../interceptors';
 import { Response } from 'express';
 import { deleteLeadingColonFromPath, joinPaths } from '@/common/lib';
@@ -130,5 +138,26 @@ export class PastryController {
     @User() user: UserFromToken | undefined,
   ): Promise<GetPastriesDto> {
     return this.pastryService.getPastries(query, user?.id);
+  }
+
+  @ApiOperation({ summary: 'Get pastry' })
+  @ApiParam({
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY),
+    description: 'Pastry ID',
+    example: '1',
+    required: true,
+  })
+  @ApiOkResponse({
+    type: () => [GetPastryAutorizedDto, GetPastryGuestDto, GetPastryOwnerDto],
+    description: 'Pastry details',
+  })
+  @ApiNotFoundResponse({ description: 'Pastry not found' })
+  @Get(ROUTER_PATHS.PASTRY)
+  @HttpCode(HttpStatus.OK)
+  async findById(
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY)) pastryId: string,
+    @User() user: UserFromToken | undefined,
+  ): Promise<GetPastryAutorizedDto | GetPastryGuestDto | GetPastryOwnerDto> {
+    return this.pastryService.findById(pastryId, user?.id);
   }
 }
