@@ -1,5 +1,5 @@
 import { NonNullableKeys } from '@/common/types';
-import { PastryCategory, PastryMedia } from '@prisma/client';
+import { Pastry, PastryCategory, PastryCategoryEnum, PastryMedia } from '@prisma/client';
 import { CreatePastryDto, UpdatePastryDto } from '../../dto';
 import { SetRequired } from 'type-fest';
 
@@ -23,3 +23,5 @@ export type UpdatePastryRepositoryRequest = SetRequired<
   >,
   'mediaToRemove'
 >;
+
+export type PastryForGettingSimilar = Pick<Pastry, 'name' | 'id'> & { categories: PastryCategoryEnum[] };

@@ -1,6 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PastryRepository } from '../repositories';
-import { CreatePastryDto, GetPastriesDto, GetPastryQueriesDto, UpdatePastryDto } from '../dto';
+import {
+  CreatePastryDto,
+  GetPastriesDto,
+  GetPastryAutorizedDto,
+  GetPastryGuestDto,
+  GetPastryOwnerDto,
+  GetPastryQueriesDto,
+  GetSimilarPastriesDto,
+  GetSimilarPastryQueriesDto,
+  UpdatePastryDto,
+} from '../dto';
 import { CreatePastryResponse } from '../types';
 import {
   addGeolocationToPastries,
@@ -8,20 +18,17 @@ import {
   getPathToPastryMedia,
   mapCategoriesToObjectArray,
   mapPastryMediaToPaths,
+  sortPastriesByRelevance,
 } from '../lib';
 import { getNextCursor, mapFilesToFilenames } from '@/common/lib';
 import { CreatePastryRepositoryRequest } from '../repositories';
-import {
-  FindPastryByIdServiceResponse,
-  OwnerFindPastryByIdServiceResponse,
-  PublicFindPastryByIdServiceResponse,
-} from './types';
 import { PastryLikeService } from '../modules/pastryLike';
 import { UpdatePastryRepositoryRequest } from '../repositories/types';
 import { PastryMediaService } from '../modules/pastryMedia';
 import { rm } from 'node:fs/promises';
-import omit from 'lodash.omit';
 import { GeolocationService } from '@/common/modules';
+import { getFormattedGeolocation } from '../lib/getFormattedGeolocation';
+import omit from 'lodash.omit';
 
 @Injectable()
 export class PastryService {
@@ -61,44 +68,59 @@ export class PastryService {
   }
 
   /**
-   * Finds a pastry by ID.
+   * Finds a pastry by its ID and formats the response based on the user's role.
    *
    * @param pastryId - The ID of the pastry to find.
-   * @param userId - The ID of the user making the request.
-   * @returns A promise that resolves to an object containing the pastry details, or null if the pastry does not exist.
-   *          If the user is the owner of the pastry, the response will contain the pastry details with the user field omitted.
-   *          If the user is not the owner of the pastry, the response will contain the pastry details, as well as a boolean indicating
-   *          whether the user has liked the pastry.
+   * @param userId - The optional ID of the user making the request.
+   * @returns A promise that resolves to one of the following DTOs:
+   *   - GetPastryOwnerDto if the requested user is the owner of the pastry.
+   *   - GetPastryAutorizedDto if the user is logged in but not the owner.
+   *   - GetPastryGuestDto if no user is logged in.
+   * @throws NotFoundException if no pastry is found with the given ID.
    */
   async findById(
     pastryId: string,
-    userId: string,
-  ): Promise<OwnerFindPastryByIdServiceResponse | PublicFindPastryByIdServiceResponse | null> {
+    userId?: string,
+  ): Promise<GetPastryAutorizedDto | GetPastryGuestDto | GetPastryOwnerDto> {
     const pastry = await this.pastryRepository.findById(pastryId);
-
     if (!pastry) {
-      return null;
+      throw new NotFoundException('Pastry not found');
     }
 
-    const baseResponse: FindPastryByIdServiceResponse = {
-      ...pastry,
-      media: mapPastryMediaToPaths(pastry.media),
+    const { geolocation, media, user, ...pastryDetails } = pastry;
+
+    const pastryWithMediaPaths = { ...pastryDetails, media: mapPastryMediaToPaths(media) };
+
+    const [geolocationDto, isLiked] = await Promise.all([
+      getFormattedGeolocation(
+        geolocation,
+        this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
+      ),
+      userId ? this.pastryLikeService.isLiked(pastryId, userId) : null,
+    ]);
+
+    const pastryDto = geolocationDto
+      ? { ...pastryWithMediaPaths, geolocation: geolocationDto }
+      : { ...pastryWithMediaPaths, geolocation: null };
+
+    // Проверка на владельца
+    if (user.id === userId) {
+      return pastryDto;
+    }
+
+    // Публичное DTO не для владельцев
+    const publicPastryDto = {
+      ...omit(pastryDto, ['updatedAt']),
+      owner: user,
     };
 
-    if (pastry.user.id !== userId) {
-      const isLiked = await this.pastryLikeService.isLiked(pastryId, userId);
-
-      const publicResponse: PublicFindPastryByIdServiceResponse = {
-        ...baseResponse,
-        isLiked,
-      };
-
-      return publicResponse;
-    } else {
-      const ownerResponse: OwnerFindPastryByIdServiceResponse = omit(baseResponse, ['user']);
-
-      return ownerResponse;
+    // Если пользователь авторизован, добавляем информацию о лайке
+    if (userId && isLiked !== null) {
+      return { ...publicPastryDto, isLiked };
     }
+
+    // Если пользователь не авторизован
+    return publicPastryDto;
   }
 
   /**
@@ -199,6 +221,72 @@ export class PastryService {
 
     return {
       data: pastriesWithGeolocation,
+      nextCursor,
+    };
+  }
+
+  /**
+   * Retrieves a list of similar pastries to the one with the specified ID, based on the specified query parameters.
+   *
+   * @param query - The query parameters for fetching similar pastries.
+   * @param pastryId - The ID of the pastry from which to get similar pastries.
+   * @param userId - The ID of the user to include in the response, used for determining if the user has liked the pastry.
+   * @returns A promise that resolves to a response containing the list of similar pastries.
+   * @throws {NotFoundException} If the pastry with the specified ID does not exist.
+   */
+  async getSimilarPastries(
+    query: GetSimilarPastryQueriesDto,
+    pastryId: string,
+    userId?: string,
+  ): Promise<GetSimilarPastriesDto> {
+    const pastry = await this.pastryRepository.findById(pastryId);
+
+    if (!pastry) {
+      throw new NotFoundException('Pastry not found');
+    }
+
+    const { categories, name } = pastry;
+
+    const similarPastries = await this.pastryRepository.getSimilarPastries(query, {
+      categories,
+      name,
+      id: pastryId,
+    });
+
+    sortPastriesByRelevance(similarPastries, {
+      categories,
+      name,
+    });
+
+    const nextCursor = getNextCursor(similarPastries);
+
+    const similarPastriesWithoutCategories = similarPastries.map((pastry) => {
+      return omit(pastry, ['categories']);
+    });
+
+    const similarPastriesWithPaths = addMediaPathsToPastries(similarPastriesWithoutCategories);
+
+    const similarPastriesWithGeolocation = await addGeolocationToPastries(
+      similarPastriesWithPaths,
+      this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
+    );
+
+    if (userId) {
+      const similarPastriesWithIsLiked = await Promise.all(
+        similarPastriesWithGeolocation.map(async (pastry) => {
+          const isLiked = await this.pastryLikeService.isLiked(pastry.id, userId);
+          return { ...pastry, isLiked };
+        }),
+      );
+
+      return {
+        data: similarPastriesWithIsLiked,
+        nextCursor,
+      };
+    }
+
+    return {
+      data: similarPastriesWithGeolocation,
       nextCursor,
     };
   }
