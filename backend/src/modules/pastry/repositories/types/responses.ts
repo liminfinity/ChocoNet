@@ -28,3 +28,7 @@ export type GetPastryItemResponse = Omit<Pastry, 'userId' | 'updatedAt' | 'descr
 };
 
 export type GetPastriesResponse = GetPastryItemResponse[];
+
+export type GetSimilarPastriesResponse = (GetPastryItemResponse & {
+  categories: PastryCategoryEnum[];
+})[];

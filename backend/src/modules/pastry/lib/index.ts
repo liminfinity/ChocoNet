@@ -7,3 +7,5 @@ export { createPastryOrderByCondition } from './createPastryOrderByCondition';
 export { createPastryQuery } from './createPastryQuery';
 export { addMediaPathsToPastries } from './addMediaPathsToPastries';
 export { addGeolocationToPastries } from './addGeolocationToPastries';
+export { createSimilarPastryQuery } from './createSimilarPastryQuery';
+export { sortPastriesByRelevance } from './sortPastriesByRelevance';

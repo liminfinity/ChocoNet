@@ -35,6 +35,10 @@ export class PastryModule implements NestModule {
         path: joinPaths(ROUTER_PATHS.PASTRIES, ROUTER_PATHS.PASTRY),
         method: RequestMethod.GET,
       },
+      {
+        path: joinPaths(ROUTER_PATHS.PASTRIES, ROUTER_PATHS.PASTRY, ROUTER_PATHS.SIMILAR),
+        method: RequestMethod.GET,
+      },
     );
   }
 }

@@ -9,3 +9,6 @@ export {
   GetPastryOwnerDto,
   GetPastryDto,
 } from './getPastry.dto';
+
+export { GetSimilarPastriesDto } from './getSimilarPastries.dto';
+export { GetSimilarPastryQueriesDto } from './getSimilarPastryQueries.dto';

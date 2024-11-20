@@ -3,12 +3,14 @@ import { Injectable } from '@nestjs/common';
 import {
   CreatePastryRepositoryRequest,
   GetPastriesResponse,
+  GetSimilarPastriesResponse,
+  PastryForGettingSimilar,
   UpdatePastryRepositoryRequest,
 } from './types';
 import { CreatePastryResponse } from '../types';
 import { FindPastryByIdRepositoryResponse } from './types';
-import { createPastryQuery } from '../lib';
-import { GetPastryQueriesDto } from '../dto';
+import { createPastryQuery, createSimilarPastryQuery } from '../lib';
+import { GetPastryQueriesDto, GetSimilarPastryQueriesDto } from '../dto';
 
 @Injectable()
 export class PastryRepository {
@@ -210,5 +212,57 @@ export class PastryRepository {
         },
       },
     });
+  }
+
+  /**
+   * Retrieves a list of pastries similar to the given pastry.
+   *
+   * @param query - The query parameters for fetching similar pastries.
+   * @param pastry - The pastry object from which to get similar pastries.
+   * @returns A promise that resolves to a response containing the list of similar pastries.
+   */
+  async getSimilarPastries(
+    query: GetSimilarPastryQueriesDto,
+    pastry: PastryForGettingSimilar,
+  ): Promise<GetSimilarPastriesResponse> {
+    const pastryQuery = createSimilarPastryQuery(query, pastry);
+
+    const pastries = await this.databaseService.pastry.findMany({
+      ...pastryQuery,
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        unit: true,
+        createdAt: true,
+        geolocation: {
+          select: {
+            lat: true,
+            lng: true,
+          },
+        },
+        media: {
+          select: {
+            id: true,
+            filename: true,
+          },
+        },
+        categories: {
+          select: {
+            category: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
+      },
+    });
+
+    return pastries.map(({ categories, ...pastry }) => ({
+      ...pastry,
+      categories: categories.map(({ category }) => category),
+    }));
   }
 }

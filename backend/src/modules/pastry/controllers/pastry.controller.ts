@@ -24,6 +24,8 @@ import {
   GetPastryAutorizedDto,
   GetPastryGuestDto,
   GetPastryOwnerDto,
+  GetSimilarPastriesDto,
+  GetSimilarPastryQueriesDto,
 } from '../dto';
 import { MediaInterceptor } from '../interceptors';
 import { Response } from 'express';
@@ -153,11 +155,28 @@ export class PastryController {
   })
   @ApiNotFoundResponse({ description: 'Pastry not found' })
   @Get(ROUTER_PATHS.PASTRY)
-  @HttpCode(HttpStatus.OK)
   async findById(
     @Param(deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY)) pastryId: string,
     @User() user: UserFromToken | undefined,
   ): Promise<GetPastryAutorizedDto | GetPastryGuestDto | GetPastryOwnerDto> {
     return this.pastryService.findById(pastryId, user?.id);
+  }
+
+  @ApiOperation({ summary: 'Get similar pastries' })
+  @ApiParam({
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY),
+    description: 'Pastry ID',
+    example: '1',
+    required: true,
+  })
+  @ApiNotFoundResponse({ description: 'Pastry not found' })
+  @ApiOkResponse({ type: GetSimilarPastriesDto, description: 'List of similar pastries' })
+  @Get(joinPaths(ROUTER_PATHS.PASTRY, ROUTER_PATHS.SIMILAR))
+  async getSimilarPastries(
+    @Query() query: GetSimilarPastryQueriesDto,
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.PASTRY)) pastryId: string,
+    @User() user: UserFromToken | undefined,
+  ): Promise<GetSimilarPastriesDto> {
+    return this.pastryService.getSimilarPastries(query, pastryId, user?.id);
   }
 }

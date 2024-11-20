@@ -7,6 +7,8 @@ import {
   GetPastryGuestDto,
   GetPastryOwnerDto,
   GetPastryQueriesDto,
+  GetSimilarPastriesDto,
+  GetSimilarPastryQueriesDto,
   UpdatePastryDto,
 } from '../dto';
 import { CreatePastryResponse } from '../types';
@@ -16,6 +18,7 @@ import {
   getPathToPastryMedia,
   mapCategoriesToObjectArray,
   mapPastryMediaToPaths,
+  sortPastriesByRelevance,
 } from '../lib';
 import { getNextCursor, mapFilesToFilenames } from '@/common/lib';
 import { CreatePastryRepositoryRequest } from '../repositories';
@@ -218,6 +221,72 @@ export class PastryService {
 
     return {
       data: pastriesWithGeolocation,
+      nextCursor,
+    };
+  }
+
+  /**
+   * Retrieves a list of similar pastries to the one with the specified ID, based on the specified query parameters.
+   *
+   * @param query - The query parameters for fetching similar pastries.
+   * @param pastryId - The ID of the pastry from which to get similar pastries.
+   * @param userId - The ID of the user to include in the response, used for determining if the user has liked the pastry.
+   * @returns A promise that resolves to a response containing the list of similar pastries.
+   * @throws {NotFoundException} If the pastry with the specified ID does not exist.
+   */
+  async getSimilarPastries(
+    query: GetSimilarPastryQueriesDto,
+    pastryId: string,
+    userId?: string,
+  ): Promise<GetSimilarPastriesDto> {
+    const pastry = await this.pastryRepository.findById(pastryId);
+
+    if (!pastry) {
+      throw new NotFoundException('Pastry not found');
+    }
+
+    const { categories, name } = pastry;
+
+    const similarPastries = await this.pastryRepository.getSimilarPastries(query, {
+      categories,
+      name,
+      id: pastryId,
+    });
+
+    sortPastriesByRelevance(similarPastries, {
+      categories,
+      name,
+    });
+
+    const nextCursor = getNextCursor(similarPastries);
+
+    const similarPastriesWithoutCategories = similarPastries.map((pastry) => {
+      return omit(pastry, ['categories']);
+    });
+
+    const similarPastriesWithPaths = addMediaPathsToPastries(similarPastriesWithoutCategories);
+
+    const similarPastriesWithGeolocation = await addGeolocationToPastries(
+      similarPastriesWithPaths,
+      this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
+    );
+
+    if (userId) {
+      const similarPastriesWithIsLiked = await Promise.all(
+        similarPastriesWithGeolocation.map(async (pastry) => {
+          const isLiked = await this.pastryLikeService.isLiked(pastry.id, userId);
+          return { ...pastry, isLiked };
+        }),
+      );
+
+      return {
+        data: similarPastriesWithIsLiked,
+        nextCursor,
+      };
+    }
+
+    return {
+      data: similarPastriesWithGeolocation,
       nextCursor,
     };
   }
