@@ -46,6 +46,7 @@ import {
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { GuardUser, User } from '@/modules/user';
 import { PastryOwnershipGuard } from '../guards';
@@ -150,8 +151,13 @@ export class PastryController {
     required: true,
   })
   @ApiOkResponse({
-    type: () => [GetPastryAutorizedDto, GetPastryGuestDto, GetPastryOwnerDto],
-    description: 'Pastry details',
+    schema: {
+      oneOf: [
+        { $ref: getSchemaPath(GetPastryGuestDto), description: 'Pastry for guest' },
+        { $ref: getSchemaPath(GetPastryOwnerDto), description: 'Pastry for owner' },
+        { $ref: getSchemaPath(GetPastryAutorizedDto), description: 'Pastry for autorized user' },
+      ],
+    },
   })
   @ApiNotFoundResponse({ description: 'Pastry not found' })
   @Get(ROUTER_PATHS.PASTRY)

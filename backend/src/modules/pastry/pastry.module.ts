@@ -8,8 +8,8 @@ import { PastryLikeModule, PastryMediaModule } from './modules';
 import { AuthMiddleware } from '../auth';
 import { ROUTER_PATHS } from './constants';
 import { GeolocationModule } from '@/common/modules';
-import { JwtTokenModule } from '../auth/modules';
 import { joinPaths } from '@/common/lib';
+import { JwtTokenModule } from '../auth/modules';
 
 @Module({
   imports: [
@@ -23,6 +23,7 @@ import { joinPaths } from '@/common/lib';
   ],
   providers: [PastryRepository, PastryService],
   controllers: [PastryController],
+  exports: [PastryService],
 })
 export class PastryModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

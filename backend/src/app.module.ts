@@ -11,6 +11,7 @@ import { MorganMiddleware } from './common/middlewares';
 import { UserModule } from './modules/user';
 import { PhoneVerificationModule, UserFollowModule } from './modules/user/modules';
 import { PastryModule } from './modules/pastry';
+import { PasswordResetModule } from './modules/auth/modules';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { PastryModule } from './modules/pastry';
       publicServeStaticConfig,
     ),
     AuthModule,
+    PasswordResetModule,
     UserModule,
     PhoneVerificationModule,
     UserFollowModule,

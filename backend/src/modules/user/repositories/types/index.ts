@@ -4,4 +4,5 @@ export type {
   AvatarRepositoryResponse,
   UserRepositoryResponse,
   BaseFindUserRepositoryResponse,
+  GetProfileRepositoryResponse,
 } from './responses';
