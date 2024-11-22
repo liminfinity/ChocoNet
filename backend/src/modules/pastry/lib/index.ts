@@ -9,3 +9,4 @@ export { addMediaPathsToPastries } from './addMediaPathsToPastries';
 export { addGeolocationToPastries } from './addGeolocationToPastries';
 export { createSimilarPastryQuery } from './createSimilarPastryQuery';
 export { sortPastriesByRelevance } from './sortPastriesByRelevance';
+export { getFormattedGeolocation } from './getFormattedGeolocation';

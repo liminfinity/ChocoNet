@@ -164,11 +164,19 @@ describe('Сервис аутентификации', () => {
     it('Если email уже зарегистрирован - ошибка', async () => {
       userService.findByEmail.mockResolvedValue(mockUser);
       await expect(authService.register(mockRegister)).rejects.toThrow(
-        new ConflictException('User already exists'),
+        new ConflictException('User with this email already exists'),
+      );
+    });
+    it('Если nickname уже занят - ошибка', async () => {
+      userService.findByEmail.mockResolvedValue(null);
+      userService.findByNickname.mockResolvedValue(mockUser);
+      await expect(authService.register(mockRegister)).rejects.toThrow(
+        new ConflictException('User with this nickname already exists'),
       );
     });
     it('Успешная регистрация', async () => {
       userService.findByEmail.mockResolvedValue(null);
+      userService.findByNickname.mockResolvedValue(null);
       userService.create.mockResolvedValue(mockCreateUser);
       verificationCodeService.save.mockResolvedValue();
       mailerService.sendMail.mockResolvedValue(null);

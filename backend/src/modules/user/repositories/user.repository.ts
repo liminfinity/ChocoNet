@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@/common/modules';
 import { CreateUserRequest, CreateUserResponse } from '../types';
 import {
+  FindByNicknameRepositoryResponse,
   FindUserByEmailRepositoryResponse,
   FindUserByIdRepositoryResponse,
   GetProfileRepositoryResponse,
@@ -61,6 +62,45 @@ export class UserRepository {
     return this.databaseService.user.findUnique({
       where: {
         id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        nickname: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        about: true,
+        createdAt: true,
+        updatedAt: true,
+        geolocation: {
+          select: {
+            lat: true,
+            lng: true,
+          },
+        },
+        avatars: {
+          select: {
+            filename: true,
+            id: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Finds a user by nickname.
+   *
+   * @param nickname The nickname of the user to find.
+   * @returns The user found by the given nickname.
+   * @throws {NotFoundError} If no user is found with the given nickname.
+   */
+  async findByNickname(nickname: string): Promise<FindByNicknameRepositoryResponse> {
+    return this.databaseService.user.findUnique({
+      where: {
+        nickname,
       },
       select: {
         id: true,
@@ -176,6 +216,20 @@ export class UserRepository {
             pastries: true,
           },
         },
+      },
+    });
+  }
+
+  /**
+   * Deletes a user with the specified ID from the database.
+   *
+   * @param userId - The ID of the user to delete.
+   * @returns A promise that resolves when the user has been successfully deleted.
+   */
+  async delete(userId: string): Promise<void> {
+    await this.databaseService.user.delete({
+      where: {
+        id: userId,
       },
     });
   }

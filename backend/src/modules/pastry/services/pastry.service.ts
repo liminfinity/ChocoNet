@@ -26,10 +26,10 @@ import { getNextCursor, mapFilesToFilenames } from '@/common/lib';
 import { CreatePastryRepositoryRequest } from '../repositories';
 import { PastryLikeService } from '../modules/pastryLike';
 import { UpdatePastryRepositoryRequest } from '../repositories/types';
-import { PastryMediaService } from '../modules/pastryMedia';
+import { PastryMediaService } from '../modules';
 import { rm } from 'node:fs/promises';
 import { GeolocationService } from '@/common/modules';
-import { getFormattedGeolocation } from '../lib/getFormattedGeolocation';
+import { getFormattedGeolocation } from '../lib';
 import omit from 'lodash.omit';
 
 @Injectable()
@@ -65,7 +65,6 @@ export class PastryService {
       categories: mapCategoriesToObjectArray(categories),
       media: mapFilesToFilenames(media),
     };
-
     return this.pastryRepository.create(userId, createPastryRequest);
   }
 
@@ -164,10 +163,12 @@ export class PastryService {
 
     await this.pastryRepository.delete(pastryId);
 
-    for (const { filename } of filesToRemove) {
-      const path = getPathToPastryMedia(filename);
-      await rm(path);
-    }
+    await Promise.all(
+      filesToRemove.map(({ filename }) => {
+        const path = getPathToPastryMedia(filename);
+        return rm(path);
+      }),
+    );
   }
 
   /**
@@ -357,5 +358,15 @@ export class PastryService {
       data: pastriesWithGeolocation,
       nextCursor,
     };
+  }
+
+  /**
+   * Retrieves a list of pastry IDs created by the specified user.
+   *
+   * @param userId - The ID of the user whose pastry IDs are to be retrieved.
+   * @returns A promise that resolves to an array of pastry IDs.
+   */
+  async getPastryIdsByUserId(userId: string): Promise<string[]> {
+    return this.pastryRepository.getPastryIdsByUserId(userId);
   }
 }

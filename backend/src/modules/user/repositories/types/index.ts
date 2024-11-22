@@ -5,4 +5,5 @@ export type {
   UserRepositoryResponse,
   BaseFindUserRepositoryResponse,
   GetProfileRepositoryResponse,
+  FindByNicknameRepositoryResponse
 } from './responses';

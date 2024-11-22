@@ -1,27 +1,37 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../repositories';
 import { CreateUserRequest, CreateUserResponse } from '../types';
-import { mapAvatarsToPaths } from '../lib';
-import { FindUserByEmailServiceResponse, FindUserByIdServiceResponse } from './types';
+import { getPathToAvatar, mapAvatarsToPaths } from '../lib';
+import {
+  FindByNicknameServiceResponse,
+  FindUserByEmailServiceResponse,
+  FindUserByIdServiceResponse,
+} from './types';
 import { GeolocationService, HashService } from '@/common/modules';
 import { GetGuestProfileDto, GetOtherProfileDto, GetSelfProfileDto } from '../dto';
 import { PastryLikeService } from '@/modules/pastry/modules/pastryLike';
-import { UserFollowService } from '../modules';
+import { UserAvatarService, UserFollowService } from '../modules';
 import omit from 'lodash.omit';
 import { getFormattedGeolocation } from '@/modules/pastry/lib/getFormattedGeolocation';
 import { GetUserPastriesDto, GetUserPastryQueriesDto } from '@/modules/pastry/dto';
 import { PastryService } from '@/modules/pastry/services';
+import { rm } from 'node:fs/promises';
+import { PastryMediaService } from '@/modules/pastry/modules';
+import { getPathToPastryMedia } from '@/modules/pastry/lib';
 
 @Injectable()
 export class UserService {
   /**
-   * Constructor for the UserService.
+   * The constructor for the UserService.
    *
-   * @param userRepository - The repository for the User entity.
-   * @param hashService - The service for hashing passwords.
-   * @param pastryLikeService - The service for the PastryLike entity.
-   * @param userFollowService - The service for the UserFollow entity.
-   * @param geolocationService - The service for geolocation.
+   * @param userRepository The repository for the User entity.
+   * @param hashService The service for hashing passwords.
+   * @param pastryLikeService The service for the PastryLike entity.
+   * @param userFollowService The service for the UserFollow entity.
+   * @param geolocationService The service for geolocation.
+   * @param pastryService The service for the Pastry entity.
+   * @param userAvatarService The service for the UserAvatar entity.
+   * @param pastryMediaService The service for the PastryMedia entity.
    */
   constructor(
     private readonly userRepository: UserRepository,
@@ -31,6 +41,9 @@ export class UserService {
     private readonly geolocationService: GeolocationService,
     @Inject(forwardRef(() => PastryService))
     private readonly pastryService: PastryService,
+    private readonly userAvatarService: UserAvatarService,
+    @Inject(forwardRef(() => PastryMediaService))
+    private readonly pastryMediaService: PastryMediaService,
   ) {}
 
   /**
@@ -62,6 +75,26 @@ export class UserService {
    */
   async findById(userId: string): Promise<FindUserByIdServiceResponse> {
     const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      ...user,
+      avatars: mapAvatarsToPaths(user.avatars),
+    };
+  }
+
+  /**
+   * Finds a user by their nickname.
+   *
+   * @param nickname - The nickname of the user to find.
+   * @returns A promise that resolves to the user's data with mapped avatar paths,
+   *          or null if the user is not found.
+   */
+  async findByNickname(nickname: string): Promise<FindByNicknameServiceResponse> {
+    const user = await this.userRepository.findByNickname(nickname);
 
     if (!user) {
       return null;
@@ -209,5 +242,33 @@ export class UserService {
     currentUserId?: string,
   ): Promise<GetUserPastriesDto> {
     return this.pastryService.getUserPastries(query, userId, currentUserId);
+  }
+
+  /**
+   * Deletes a user with the specified ID, as well as all related avatars and
+   * media, from the database.
+   *
+   * @param userId - The ID of the user to delete.
+   * @returns A promise that resolves when the user has been successfully deleted.
+   */
+  async delete(userId: string): Promise<void> {
+    const [avatarsToRemove, pastryIds] = await Promise.all([
+      this.userAvatarService.findByUserId(userId),
+      this.pastryService.getPastryIdsByUserId(userId),
+    ]);
+
+    const pastryMediaToRemove = await Promise.all(
+      pastryIds.map((pastryId) => this.pastryMediaService.findByPastryId(pastryId)),
+    );
+
+    await this.userRepository.delete(userId);
+
+    const avatarPaths = avatarsToRemove.map(({ filename }) => getPathToAvatar(filename));
+    const pastryMediaPaths = pastryMediaToRemove
+      .flat()
+      .map(({ filename }) => getPathToPastryMedia(filename));
+
+    const allPaths = [...avatarPaths, ...pastryMediaPaths];
+    await Promise.all(allPaths.map((path) => rm(path)));
   }
 }
