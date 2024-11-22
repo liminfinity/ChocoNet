@@ -9,6 +9,8 @@ import {
   GetPastryQueriesDto,
   GetSimilarPastriesDto,
   GetSimilarPastryQueriesDto,
+  GetUserPastriesDto,
+  GetUserPastryQueriesDto,
   UpdatePastryDto,
 } from '../dto';
 import { CreatePastryResponse } from '../types';
@@ -176,7 +178,7 @@ export class PastryService {
    * @returns A promise that resolves to true if the user owns the pastry, or false otherwise.
    * @throws {NotFoundException} If the pastry with the specified ID does not exist.
    */
-  async isPartyOwnedByUser(pastryId: string, userId: string): Promise<boolean> {
+  async isPastryOwnedByUser(pastryId: string, userId: string): Promise<boolean> {
     const pastry = await this.pastryRepository.findById(pastryId);
 
     if (!pastry) {
@@ -205,10 +207,19 @@ export class PastryService {
       this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
     );
 
+    // Если пользователь авторизован
     if (userId) {
       const pastriesWithIsLiked = await Promise.all(
         pastriesWithGeolocation.map(async (pastry) => {
+          const isPastryOwner = await this.isPastryOwnedByUser(pastry.id, userId);
+
+          // Если владелец, то возвращаем без isLiked
+          if (isPastryOwner) {
+            return pastry;
+          }
+
           const isLiked = await this.pastryLikeService.isLiked(pastry.id, userId);
+
           return { ...pastry, isLiked };
         }),
       );
@@ -274,6 +285,12 @@ export class PastryService {
     if (userId) {
       const similarPastriesWithIsLiked = await Promise.all(
         similarPastriesWithGeolocation.map(async (pastry) => {
+          const isPastryOwner = await this.isPastryOwnedByUser(pastry.id, userId);
+
+          // Если владелец, то возвращаем без isLiked
+          if (isPastryOwner) {
+            return pastry;
+          }
           const isLiked = await this.pastryLikeService.isLiked(pastry.id, userId);
           return { ...pastry, isLiked };
         }),
@@ -287,6 +304,57 @@ export class PastryService {
 
     return {
       data: similarPastriesWithGeolocation,
+      nextCursor,
+    };
+  }
+
+  /**
+   * Retrieves a list of pastries created by the user with the given ID.
+   *
+   * If the current user is authorized and is not the owner of the pastries, the
+   * response will contain an additional `isLiked` property that indicates whether
+   * the current user has liked the pastry.
+   *
+   * @param query - The query parameters for fetching user pastries.
+   * @param userId - The ID of the user whose pastries to retrieve.
+   * @param currentUserId - The ID of the current user, if authorized.
+   * @returns A promise that resolves to an object containing the list of user
+   *          pastries and a cursor for pagination.
+   */
+  async getUserPastries(
+    query: GetUserPastryQueriesDto,
+    userId: string,
+    currentUserId?: string,
+  ): Promise<GetUserPastriesDto> {
+    const pastries = await this.pastryRepository.getUserPastries(query, userId);
+
+    const pastriesWithPaths = addMediaPathsToPastries(pastries);
+
+    const nextCursor = getNextCursor(pastriesWithPaths);
+
+    const pastriesWithGeolocation = await addGeolocationToPastries(
+      pastriesWithPaths,
+      this.geolocationService.getGeolocationByCoords.bind(this.geolocationService),
+    );
+
+    // Если пользователь авторизован и не владелец
+    if (currentUserId && currentUserId !== userId) {
+      const pastriesWithIsLiked = await Promise.all(
+        pastriesWithGeolocation.map(async (pastry) => {
+          const isLiked = await this.pastryLikeService.isLiked(pastry.id, currentUserId);
+
+          return { ...pastry, isLiked };
+        }),
+      );
+
+      return {
+        data: pastriesWithIsLiked,
+        nextCursor,
+      };
+    }
+
+    return {
+      data: pastriesWithGeolocation,
       nextCursor,
     };
   }

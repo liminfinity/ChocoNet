@@ -10,4 +10,5 @@ export type {
   GetPastriesResponse,
   GetPastryItemResponse,
   GetSimilarPastriesResponse,
+  GetUserPastriesResponse,
 } from './responses';

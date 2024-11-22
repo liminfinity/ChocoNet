@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../repositories';
 import { CreateUserRequest, CreateUserResponse } from '../types';
 import { mapAvatarsToPaths } from '../lib';
@@ -9,6 +9,8 @@ import { PastryLikeService } from '@/modules/pastry/modules/pastryLike';
 import { UserFollowService } from '../modules';
 import omit from 'lodash.omit';
 import { getFormattedGeolocation } from '@/modules/pastry/lib/getFormattedGeolocation';
+import { GetUserPastriesDto, GetUserPastryQueriesDto } from '@/modules/pastry/dto';
+import { PastryService } from '@/modules/pastry/services';
 
 @Injectable()
 export class UserService {
@@ -27,6 +29,8 @@ export class UserService {
     private readonly pastryLikeService: PastryLikeService,
     private readonly userFollowService: UserFollowService,
     private readonly geolocationService: GeolocationService,
+    @Inject(forwardRef(() => PastryService))
+    private readonly pastryService: PastryService,
   ) {}
 
   /**
@@ -184,5 +188,26 @@ export class UserService {
       ...omit(profileWithGeolocation, ['updatedAt']),
       isFollowing,
     };
+  }
+
+  /**
+   * Retrieves a list of pastries created by a user.
+   *
+   * If the current user is authorized and is not the owner of the pastries,
+   * the response will contain an additional `isLiked` property that indicates
+   * whether the current user has liked the pastry.
+   *
+   * @param query - The query parameters for fetching user pastries.
+   * @param userId - The ID of the user whose pastries to retrieve.
+   * @param currentUserId - The ID of the current user, if authorized.
+   * @returns A promise that resolves to an object containing the list of user
+   *          pastries and a cursor for pagination.
+   */
+  async getUserPastries(
+    query: GetUserPastryQueriesDto,
+    userId: string,
+    currentUserId?: string,
+  ): Promise<GetUserPastriesDto> {
+    return this.pastryService.getUserPastries(query, userId, currentUserId);
   }
 }

@@ -31,7 +31,8 @@ import { MediaInterceptor } from '../interceptors';
 import { Response } from 'express';
 import { deleteLeadingColonFromPath, joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as BASE_ROUTER_PATHS } from '@/common/constants';
-import { JwtAuthGuard, UserFromToken } from '@/modules/auth';
+import { UserFromToken } from '@/modules/auth/';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -48,7 +49,7 @@ import {
   ApiUnauthorizedResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { GuardUser, User } from '@/modules/user';
+import { GuardUser, User } from '@/modules/user/decorators';
 import { PastryOwnershipGuard } from '../guards';
 import { COOKIES } from '@/modules/auth/constants';
 

@@ -4,6 +4,7 @@ import {
   CreatePastryRepositoryRequest,
   GetPastriesResponse,
   GetSimilarPastriesResponse,
+  GetUserPastriesResponse,
   PastryForGettingSimilar,
   UpdatePastryRepositoryRequest,
 } from './types';
@@ -264,5 +265,54 @@ export class PastryRepository {
       ...pastry,
       categories: categories.map(({ category }) => category),
     }));
+  }
+
+  /**
+   * Retrieves a list of pastries created by the user with the given ID, based on the given query parameters.
+   *
+   * @param queryDto - The query parameters for fetching user pastries.
+   * @param userId - The ID of the user whose pastries to retrieve.
+   * @returns A promise that resolves to a response containing the list of user pastries.
+   */
+  async getUserPastries(
+    queryDto: GetPastryQueriesDto,
+    userId: string,
+  ): Promise<GetUserPastriesResponse> {
+    const pastryQuery = createPastryQuery(queryDto);
+
+    pastryQuery.where = {
+      ...pastryQuery.where,
+      user: {
+        id: userId,
+      },
+    };
+
+    return this.databaseService.pastry.findMany({
+      ...pastryQuery,
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        unit: true,
+        createdAt: true,
+        geolocation: {
+          select: {
+            lat: true,
+            lng: true,
+          },
+        },
+        media: {
+          select: {
+            id: true,
+            filename: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
+      },
+    });
   }
 }
