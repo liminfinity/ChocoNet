@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { ROUTER_PATHS } from '../constants';
 import { PastryLikeService } from '../services';
-import { JwtAuthGuard } from '@/modules/auth';
-import { GuardUser } from '@/modules/user';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt.guard';
+import { GuardUser } from '@/modules/user/decorators/guardUser';
 import {
   ApiConflictResponse,
   ApiCookieAuth,

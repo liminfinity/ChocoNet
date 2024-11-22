@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { HashModule } from '@/common/modules';
 import { JwtStrategy } from './strategies';
 import { AuthService } from './services';
 import { AuthController } from './controllers';
-import { JwtTokenModule, VerificationCodeModule, PasswordResetModule } from './modules';
+import { JwtTokenModule, VerificationCodeModule } from './modules';
 import { UserModule } from '../user';
 import { MulterModule } from '@nestjs/platform-express';
 import { MulterConfigService } from '@/common/services';
@@ -17,8 +17,7 @@ import { mailerConfig } from '@/common/configs';
     PassportModule,
     JwtTokenModule,
     VerificationCodeModule,
-    PasswordResetModule,
-    UserModule,
+    forwardRef(() => UserModule),
     MulterModule.registerAsync({
       useClass: MulterConfigService,
     }),
@@ -26,5 +25,6 @@ import { mailerConfig } from '@/common/configs';
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}

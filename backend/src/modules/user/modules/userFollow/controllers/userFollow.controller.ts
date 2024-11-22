@@ -24,10 +24,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '@/modules/auth';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { COOKIES } from '@/modules/auth/constants';
 import { UserFollowService } from '../services';
-import { GuardUser } from '@/modules/user';
+import { GuardUser } from '@/modules/user/decorators/guardUser';
 import { GetFollowQueriesDto, GetFollowsDto } from '../dto';
 
 @ApiTags(joinPaths(USER_ROUTER_PATHS.USERS, ROUTER_PATHS.FOLLOWS))

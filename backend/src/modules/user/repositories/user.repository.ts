@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@/common/modules';
 import { CreateUserRequest, CreateUserResponse } from '../types';
-import { FindUserByEmailRepositoryResponse, FindUserByIdRepositoryResponse } from './types';
+import {
+  FindUserByEmailRepositoryResponse,
+  FindUserByIdRepositoryResponse,
+  GetProfileRepositoryResponse,
+} from './types';
 
 @Injectable()
 export class UserRepository {
@@ -124,6 +128,54 @@ export class UserRepository {
       },
       data: {
         password: newPassword,
+      },
+    });
+  }
+
+  /**
+   * Finds a user by their ID, and returns their profile data.
+   *
+   * @param userId - The ID of the user to find.
+   * @returns A promise that resolves to the user's profile data, or null if the user is not found.
+   */
+  async getProfile(userId: string): Promise<GetProfileRepositoryResponse | null> {
+    return this.databaseService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        email: true,
+        nickname: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        about: true,
+        createdAt: true,
+        updatedAt: true,
+        phoneVerification: {
+          select: {
+            isVerified: true,
+          },
+        },
+        geolocation: {
+          select: {
+            lat: true,
+            lng: true,
+          },
+        },
+        avatars: {
+          select: {
+            filename: true,
+            id: true,
+          },
+        },
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+            pastries: true,
+          },
+        },
       },
     });
   }

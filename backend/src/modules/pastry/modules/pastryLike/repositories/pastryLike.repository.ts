@@ -107,4 +107,20 @@ export class PastryLikeRepository {
       },
     });
   }
+
+  /**
+   * Retrieves the total count of likes received by the user for their pastries.
+   *
+   * @param userId - The ID of the user whose received likes count is to be retrieved.
+   * @returns A promise that resolves to the number of likes received by the user's pastries.
+   */
+  async getReceivedLikesCount(userId: string): Promise<number> {
+    return this.databaseService.pastryLike.count({
+      where: {
+        pastry: {
+          userId,
+        },
+      },
+    });
+  }
 }

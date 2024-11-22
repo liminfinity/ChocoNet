@@ -31,7 +31,8 @@ import { MediaInterceptor } from '../interceptors';
 import { Response } from 'express';
 import { deleteLeadingColonFromPath, joinPaths } from '@/common/lib';
 import { ROUTER_PATHS as BASE_ROUTER_PATHS } from '@/common/constants';
-import { JwtAuthGuard, UserFromToken } from '@/modules/auth';
+import { UserFromToken } from '@/modules/auth/';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -46,8 +47,9 @@ import {
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
+  getSchemaPath,
 } from '@nestjs/swagger';
-import { GuardUser, User } from '@/modules/user';
+import { GuardUser, User } from '@/modules/user/decorators';
 import { PastryOwnershipGuard } from '../guards';
 import { COOKIES } from '@/modules/auth/constants';
 
@@ -150,8 +152,13 @@ export class PastryController {
     required: true,
   })
   @ApiOkResponse({
-    type: () => [GetPastryAutorizedDto, GetPastryGuestDto, GetPastryOwnerDto],
-    description: 'Pastry details',
+    schema: {
+      oneOf: [
+        { $ref: getSchemaPath(GetPastryGuestDto), description: 'Pastry for guest' },
+        { $ref: getSchemaPath(GetPastryOwnerDto), description: 'Pastry for owner' },
+        { $ref: getSchemaPath(GetPastryAutorizedDto), description: 'Pastry for autorized user' },
+      ],
+    },
   })
   @ApiNotFoundResponse({ description: 'Pastry not found' })
   @Get(ROUTER_PATHS.PASTRY)

@@ -12,3 +12,6 @@ export {
 
 export { GetSimilarPastriesDto } from './getSimilarPastries.dto';
 export { GetSimilarPastryQueriesDto } from './getSimilarPastryQueries.dto';
+
+export { GetUserPastriesDto } from './getUserPastries.dto';
+export { GetUserPastryQueriesDto } from './getUserPastryQueries.dto';

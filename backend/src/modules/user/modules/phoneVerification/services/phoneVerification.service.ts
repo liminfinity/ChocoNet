@@ -1,7 +1,7 @@
 import { SmsService } from '@/common/modules';
 import { VerificationCodeService } from '@/modules/auth/modules';
 import { UserService } from '@/modules/user';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { VerificationCodeType } from '@prisma/client';
 import { createVerificationSms } from '../lib';
 import { PhoneVerificationRepository } from '../repositories';
@@ -18,6 +18,7 @@ export class PhoneVerificationService {
    * @param phoneVerificationRepository The phone verification repository
    */
   constructor(
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly smsService: SmsService,
     private readonly verificationCodeService: VerificationCodeService,

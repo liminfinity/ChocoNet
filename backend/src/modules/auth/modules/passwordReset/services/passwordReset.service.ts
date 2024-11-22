@@ -2,6 +2,8 @@ import { UserService } from '@/modules/user';
 import {
   BadRequestException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -25,6 +27,7 @@ export class PasswordResetService {
    * @param jwtTokenService The jwt token service
    */
   constructor(
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly verificationCodeService: VerificationCodeService,
     private readonly mailerService: MailerService,

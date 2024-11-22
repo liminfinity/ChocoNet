@@ -32,7 +32,7 @@ export class PastryOwnershipGuard implements CanActivate {
       throw new NotFoundException('Pastry not found');
     }
 
-    const isPastryOwnedByUser = await this.pastryService.isPartyOwnedByUser(pastryId, userId);
+    const isPastryOwnedByUser = await this.pastryService.isPastryOwnedByUser(pastryId, userId);
 
     if (!isPastryOwnedByUser) {
       throw new ForbiddenException('You do not have permission to modify this pastry');

@@ -2,6 +2,8 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -28,6 +30,7 @@ import { mapFilesToFilenames } from '@/common/lib';
 export class AuthService {
   constructor(
     private readonly hashService: HashService,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly jwtTokenService: JwtTokenService,
     private readonly verificationCodeService: VerificationCodeService,

@@ -10,12 +10,18 @@ class PastryAutorizedDto extends PastryWithIdDto {
   isLiked!: boolean;
 }
 
+class PastryOwnerDto extends PastryWithIdDto {}
+
 @ApiExtraModels(PastryAutorizedDto, PastryWithIdDto)
 export class GetPastriesDto extends GetListDto {
   @ApiProperty({
     description: 'List of pastries',
     isArray: true,
-    oneOf: [{ $ref: getSchemaPath(PastryAutorizedDto) }, { $ref: getSchemaPath(PastryWithIdDto) }],
+    oneOf: [
+      { $ref: getSchemaPath(PastryAutorizedDto) },
+      { $ref: getSchemaPath(PastryWithIdDto) },
+      { $ref: getSchemaPath(PastryOwnerDto) },
+    ],
   })
-  data!: (PastryAutorizedDto | PastryWithIdDto)[];
+  data!: (PastryAutorizedDto | PastryWithIdDto | PastryOwnerDto)[];
 }

@@ -1,6 +1,8 @@
 import {
   ConflictException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,9 +14,16 @@ import { getNextCursor } from '@/common/lib';
 
 @Injectable()
 export class UserFollowService {
+  /**
+   * Creates an instance of the UserFollowService.
+   *
+   * @param userService The user service
+   * @param userFollowRepository The repository for managing user follow relationships
+   */
   constructor(
-    private readonly userFollowRepository: UserFollowRepository,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly userFollowRepository: UserFollowRepository,
   ) {}
 
   /**

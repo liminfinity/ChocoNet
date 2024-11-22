@@ -3,7 +3,7 @@ import { ROUTER_PATHS as USERS_ROUTER_PATHS } from '@/modules/user/constants';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ROUTER_PATHS } from '../constants';
 import { PhoneVerificationService } from '../services';
-import { JwtAuthGuard } from '@/modules/auth';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { VerifyCodeDto } from '../dto';
 import {
   ApiCookieAuth,
@@ -12,7 +12,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { GuardUser } from '@/modules/user';
+import { GuardUser } from '@/modules/user/decorators/guardUser';
 import { COOKIES } from '@/modules/auth/constants';
 
 @ApiTags(joinPaths(USERS_ROUTER_PATHS.USERS, ROUTER_PATHS.PHONE_VERIFICATION))
