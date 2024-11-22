@@ -14,6 +14,8 @@ export type FindUserByIdRepositoryResponse = BaseFindUserRepositoryResponse;
 
 export type FindUserByEmailRepositoryResponse = BaseFindUserRepositoryResponse;
 
+export type FindByNicknameRepositoryResponse = BaseFindUserRepositoryResponse;
+
 export type GetProfileRepositoryResponse = Omit<User, 'id' | 'password'> & {
   geolocation: GeolocationDto | null;
   avatars: AvatarRepositoryResponse[];

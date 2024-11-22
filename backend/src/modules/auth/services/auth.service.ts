@@ -161,9 +161,14 @@ export class AuthService {
    * @throws ConflictException If a user with the same email already exists.
    */
   async register(registerDto: RegisterDto): Promise<void> {
-    const existingUser = await this.userService.findByEmail(registerDto.email);
-    if (existingUser) {
-      throw new ConflictException('User already exists');
+    const emailExistingUser = await this.userService.findByEmail(registerDto.email);
+    if (emailExistingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    const nicknameExistingUser = await this.userService.findByNickname(registerDto.nickname);
+    if (nicknameExistingUser) {
+      throw new ConflictException('User with this nickname already exists');
     }
 
     const { email } = await this.userService.create({

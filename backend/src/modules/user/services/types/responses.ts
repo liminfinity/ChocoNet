@@ -12,3 +12,5 @@ export type BaseFindUserServiceResponse =
 export type FindUserByIdServiceResponse = BaseFindUserServiceResponse;
 
 export type FindUserByEmailServiceResponse = BaseFindUserServiceResponse;
+
+export type FindByNicknameServiceResponse = BaseFindUserServiceResponse;

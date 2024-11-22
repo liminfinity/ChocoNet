@@ -3,4 +3,5 @@ export type {
   FindUserByIdServiceResponse,
   BaseFindUserServiceResponse,
   AvatarServiceResponse,
+  FindByNicknameServiceResponse
 } from './responses';

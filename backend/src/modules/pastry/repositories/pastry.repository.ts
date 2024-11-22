@@ -315,4 +315,24 @@ export class PastryRepository {
       },
     });
   }
+
+  /**
+   * Retrieves an array of pastry IDs created by the user with the given ID.
+   * @param userId - The ID of the user whose pastry IDs to retrieve.
+   * @returns A promise that resolves to an array of pastry IDs.
+   */
+  async getPastryIdsByUserId(userId: string): Promise<string[]> {
+    const pastries = await this.databaseService.pastry.findMany({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return pastries.map(({ id }) => id);
+  }
 }
