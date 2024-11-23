@@ -16,7 +16,7 @@ import {
 } from './mocks';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { VerificationCodeType } from '@prisma/client';
-import omit from 'lodash.omit';
+import { mapUserToDto } from '@/modules/user/lib';
 
 describe('Сервис сброса пароля', () => {
   let passwordResetService: PasswordResetService;
@@ -177,7 +177,7 @@ describe('Сервис сброса пароля', () => {
 
       const result = await passwordResetService.updatePassword(mockUpdatePassword);
 
-      expect(result.user).toEqual(omit(mockUser, ['password', 'id']));
+      expect(result.user).toEqual(mapUserToDto(mockUser));
       expect(result.accessToken).toEqual(mockNewTokens.accessToken);
       expect(result.refreshToken).toEqual(mockNewTokens.refreshToken);
     });

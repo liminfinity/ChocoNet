@@ -15,6 +15,7 @@ import { RequestCodeDto, VerifyCodeDto } from '@/modules/auth/dto';
 import { UpdatePasswordServiceRequest, UpdatePasswordServiceResponse } from './types';
 import { JwtPayload, JwtTokenService } from '../../jwtToken';
 import omit from 'lodash.omit';
+import { mapUserToDto } from '@/modules/user/lib';
 
 @Injectable()
 export class PasswordResetService {
@@ -131,7 +132,7 @@ export class PasswordResetService {
     });
 
     return {
-      user: userWithoutPassword,
+      user: mapUserToDto(userWithoutPassword),
       accessToken,
       refreshToken,
     };

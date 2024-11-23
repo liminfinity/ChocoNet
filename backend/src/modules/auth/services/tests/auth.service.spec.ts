@@ -22,9 +22,9 @@ import {
 } from '@nestjs/common';
 import { HashService } from '@/common/modules';
 import { MailerService } from '@nestjs-modules/mailer';
-import omit from 'lodash.omit';
 import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import { VerificationCodeType } from '@prisma/client';
+import { mapUserToDto } from '@/modules/user/lib';
 
 describe('Сервис аутентификации', () => {
   let authService: AuthService;
@@ -89,7 +89,7 @@ describe('Сервис аутентификации', () => {
 
       const result = await authService.login(mockLogin);
 
-      expect(result.user).toEqual(omit(mockUser, ['password', 'id']));
+      expect(result.user).toEqual(mapUserToDto(mockUser));
       expect(result.accessToken).toEqual(mockNewTokens.accessToken);
       expect(result.refreshToken).toEqual(mockNewTokens.refreshToken);
     });
@@ -154,7 +154,7 @@ describe('Сервис аутентификации', () => {
 
       const result = await authService.refresh(mockNewTokens.refreshToken);
 
-      expect(result.user).toEqual(omit(mockUser, ['password', 'id']));
+      expect(result.user).toEqual(mapUserToDto(mockUser));
       expect(result.accessToken).toEqual(mockNewTokens.accessToken);
       expect(result.refreshToken).toEqual(mockNewTokens.refreshToken);
     });
@@ -216,7 +216,7 @@ describe('Сервис аутентификации', () => {
 
       const result = await authService.verifyCode(mockVerifyCode);
 
-      expect(result.user).toEqual(omit(mockUser, ['password', 'id']));
+      expect(result.user).toEqual(mapUserToDto(mockUser));
       expect(result.accessToken).toEqual(mockNewTokens.accessToken);
       expect(result.refreshToken).toEqual(mockNewTokens.refreshToken);
     });

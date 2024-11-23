@@ -11,7 +11,7 @@ export const mockLogin: LoginDto = {
   rememberMe: faker.datatype.boolean(),
 };
 
-export const mockUser: BaseFindUserServiceResponse = {
+export const mockUser: NonNullable<BaseFindUserServiceResponse> = {
   id: faker.string.uuid(),
   email: faker.internet.email(),
   password: faker.internet.password(),
