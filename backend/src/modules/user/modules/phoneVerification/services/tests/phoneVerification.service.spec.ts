@@ -52,8 +52,8 @@ describe('Сервис подтверждения телефона', () => {
   it('Обновление репозитория проверки телефона после успешной проверки', async () => {
     userService.findById.mockResolvedValue(mockServiceUser);
     verificationCodeService.verify.mockResolvedValue(true);
-    phoneVerificationRepository.update.mockResolvedValue();
+    phoneVerificationRepository.upsert.mockResolvedValue();
     await phoneVerificationService.verifyCode('12345', 'userId');
-    expect(phoneVerificationRepository.update).toHaveBeenCalledTimes(1);
+    expect(phoneVerificationRepository.upsert).toHaveBeenCalledTimes(1);
   });
 });

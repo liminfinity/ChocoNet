@@ -22,7 +22,7 @@ export class UpdatePastryDto
   })
   @IsOptional()
   @IsString()
-  name?: string;
+  name?: string | undefined;
 
   @ApiProperty({
     description: 'Pastry description',
@@ -30,7 +30,7 @@ export class UpdatePastryDto
   })
   @IsOptional()
   @IsString()
-  description?: string;
+  description?: string | undefined;
 
   @ApiProperty({
     description: 'Pastry price',
@@ -39,7 +39,7 @@ export class UpdatePastryDto
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  price?: number;
+  price?: number | undefined;
 
   @ApiProperty({
     description: 'Pastry unit',
@@ -48,7 +48,7 @@ export class UpdatePastryDto
   })
   @IsOptional()
   @IsEnum(PastryUnit)
-  unit?: PastryUnit;
+  unit?: PastryUnit | undefined;
 
   @ApiProperty({
     description: 'Pastry categories',
@@ -59,7 +59,7 @@ export class UpdatePastryDto
   @IsOptional()
   @IsArray()
   @IsEnum(PastryCategoryEnum, { each: true })
-  categories?: PastryCategoryEnum[];
+  categories?: PastryCategoryEnum[] | undefined;
 
   @ApiProperty({
     description: 'Pastry contact',
@@ -70,7 +70,7 @@ export class UpdatePastryDto
   @IsOptional()
   @ValidateNested()
   @Type(() => PastryContactDto)
-  contact?: PastryContactDto;
+  contact?: PastryContactDto | undefined;
 
   @ApiProperty({
     description: 'Pastry geolocation',
@@ -82,7 +82,7 @@ export class UpdatePastryDto
   @IsOptional()
   @ValidateNested()
   @Type(() => PastryGeolocationDto)
-  geolocation?: PastryGeolocationDto;
+  geolocation?: PastryGeolocationDto | undefined;
 
   @ApiProperty({
     description: 'Pastry media to remove',
@@ -92,7 +92,7 @@ export class UpdatePastryDto
   @IsOptional()
   @IsArray()
   @IsUUID('4', { each: true })
-  mediaToRemove?: string[];
+  mediaToRemove?: string[] | undefined;
 
   @ApiProperty({
     description: 'Pastry media',
@@ -100,5 +100,5 @@ export class UpdatePastryDto
     format: 'binary',
   })
   @IsOptional()
-  media?: Express.Multer.File[];
+  media?: Express.Multer.File[] | undefined;
 }

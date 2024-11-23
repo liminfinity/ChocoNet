@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -15,9 +16,9 @@ import {
   VerifyAndUpdatePasswordServiceRequest,
 } from './types';
 import { GeolocationService, HashService } from '@/common/modules';
-import { GetGuestProfileDto, GetOtherProfileDto, GetSelfProfileDto } from '../dto';
+import { GetGuestProfileDto, GetOtherProfileDto, GetSelfProfileDto, UpdateUserDto } from '../dto';
 import { PastryLikeService } from '@/modules/pastry/modules/pastryLike';
-import { UserAvatarService, UserFollowService } from '../modules';
+import { PhoneVerificationService, UserAvatarService, UserFollowService } from '../modules';
 import omit from 'lodash.omit';
 import { getFormattedGeolocation } from '@/modules/pastry/lib/getFormattedGeolocation';
 import { GetUserPastriesDto, GetUserPastryQueriesDto } from '@/modules/pastry/dto';
@@ -26,6 +27,8 @@ import { rm } from 'node:fs/promises';
 import { PastryMediaService } from '@/modules/pastry/modules';
 import { getPathToPastryMedia } from '@/modules/pastry/lib';
 import { JwtTokenService } from '@/modules/auth/modules';
+import { UpdateUserRepositoryRequest } from '../repositories/types';
+import { mapFilesToFilenames } from '@/common/lib';
 
 @Injectable()
 export class UserService {
@@ -41,6 +44,7 @@ export class UserService {
    * @param userAvatarService The service for the UserAvatar entity.
    * @param pastryMediaService The service for the PastryMedia entity.
    * @param jwtTokenService The service for JWT tokens.
+   * @param phoneVerificationService The service for phone verification.
    */
   constructor(
     private readonly userRepository: UserRepository,
@@ -54,6 +58,7 @@ export class UserService {
     @Inject(forwardRef(() => PastryMediaService))
     private readonly pastryMediaService: PastryMediaService,
     private readonly jwtTokenService: JwtTokenService,
+    private readonly phoneVerificationService: PhoneVerificationService,
   ) {}
 
   /**
@@ -317,5 +322,65 @@ export class UserService {
     if (logoutFromOtherDevices) {
       await this.jwtTokenService.deleteRefreshTokensByUserId(userId);
     }
+  }
+
+  /**
+   * Updates a user's data.
+   *
+   * @param userId - The ID of the user to update.
+   * @param updateUserDto - The update data.
+   * @param {string[]} updateUserDto.avatarsToRemove - IDs of avatars to remove.
+   * @param {Express.Multer.File[]} updateUserDto.avatars - New avatar files to add.
+   * @param {string} [updateUserDto.nickname] - New nickname.
+   * @param {string} [updateUserDto.phone] - New phone number.
+   * @param {string} [updateUserDto.firstName] - New first name.
+   * @param {string} [updateUserDto.lastName] - New last name.
+   * @param {string} [updateUserDto.about] - New about text.
+   * @param {GeolocationDto} [updateUserDto.geolocation] - New geolocation.
+   *
+   * @throws ConflictException If the new nickname already exists.
+   *
+   * @returns A promise that resolves when the user's data has been successfully updated.
+   */
+  async update(
+    userId: string,
+    { avatarsToRemove, avatars, email, nickname, ...updateUserDto }: UpdateUserDto,
+  ): Promise<void> {
+    if (email) {
+      const existingEmail = await this.userRepository.findByEmail(email);
+
+      if (existingEmail && existingEmail.id !== userId) {
+        throw new ConflictException('Email already exists');
+      }
+    }
+
+    if (nickname) {
+      const existingNickname = await this.userRepository.findByNickname(nickname);
+
+      if (existingNickname && existingNickname.id !== userId) {
+        throw new ConflictException('Nickname already exists');
+      }
+    }
+
+    const updateUserRequest: UpdateUserRepositoryRequest = {
+      ...updateUserDto,
+      nickname,
+      email,
+      avatarsToRemove: avatarsToRemove || [],
+      avatars: avatars && mapFilesToFilenames(avatars),
+    };
+
+    const filesToRemove = await this.userAvatarService.findByIds(updateUserRequest.avatarsToRemove);
+
+    await this.userRepository.update(userId, updateUserRequest);
+
+    await this.phoneVerificationService.resetVerification(userId);
+
+    await Promise.all(
+      filesToRemove.map(({ filename }) => {
+        const path = getPathToAvatar(filename);
+        return rm(path);
+      }),
+    );
   }
 }

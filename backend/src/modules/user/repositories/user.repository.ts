@@ -6,6 +6,7 @@ import {
   FindUserByEmailRepositoryResponse,
   FindUserByIdRepositoryResponse,
   GetProfileRepositoryResponse,
+  UpdateUserRepositoryRequest,
 } from './types';
 
 @Injectable()
@@ -231,6 +232,40 @@ export class UserRepository {
     await this.databaseService.user.delete({
       where: {
         id: userId,
+      },
+    });
+  }
+
+  /**
+   * Updates the user's data in the database, including geolocation and avatars.
+   *
+   * @param userId - The ID of the user to update.
+   * @param updateUserDto - The data transfer object containing the updated user details,
+   *                        including optional updates for geolocation and avatars.
+   *                        Avatars specified in avatarsToRemove will be deleted,
+   *                        and new avatars will be created if provided.
+   * @returns A promise that resolves when the update operation is complete.
+   */
+  async update(userId: string, updateUserDto: UpdateUserRepositoryRequest): Promise<void> {
+    const { avatars, avatarsToRemove, geolocation, ...updatingUser } = updateUserDto;
+
+    await this.databaseService.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        ...updatingUser,
+        geolocation: {
+          update: geolocation,
+        },
+        avatars: {
+          deleteMany: {
+            id: {
+              in: avatarsToRemove,
+            },
+          },
+          create: avatars,
+        },
       },
     });
   }
