@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRepository } from '../repositories';
 import { CreateUserRequest, CreateUserResponse } from '../types';
 import { getPathToAvatar, mapAvatarsToPaths } from '../lib';
@@ -6,6 +12,7 @@ import {
   FindByNicknameServiceResponse,
   FindUserByEmailServiceResponse,
   FindUserByIdServiceResponse,
+  VerifyAndUpdatePasswordServiceRequest,
 } from './types';
 import { GeolocationService, HashService } from '@/common/modules';
 import { GetGuestProfileDto, GetOtherProfileDto, GetSelfProfileDto } from '../dto';
@@ -18,6 +25,7 @@ import { PastryService } from '@/modules/pastry/services';
 import { rm } from 'node:fs/promises';
 import { PastryMediaService } from '@/modules/pastry/modules';
 import { getPathToPastryMedia } from '@/modules/pastry/lib';
+import { JwtTokenService } from '@/modules/auth/modules';
 
 @Injectable()
 export class UserService {
@@ -32,6 +40,7 @@ export class UserService {
    * @param pastryService The service for the Pastry entity.
    * @param userAvatarService The service for the UserAvatar entity.
    * @param pastryMediaService The service for the PastryMedia entity.
+   * @param jwtTokenService The service for JWT tokens.
    */
   constructor(
     private readonly userRepository: UserRepository,
@@ -44,6 +53,7 @@ export class UserService {
     private readonly userAvatarService: UserAvatarService,
     @Inject(forwardRef(() => PastryMediaService))
     private readonly pastryMediaService: PastryMediaService,
+    private readonly jwtTokenService: JwtTokenService,
   ) {}
 
   /**
@@ -122,15 +132,15 @@ export class UserService {
   }
 
   /**
-   * Updates the user's password in the database.
+   * Updates a user's password in the database.
    *
-   * @param email - The email of the user whose password is to be updated.
+   * @param userId - The ID of the user whose password is to be updated.
    * @param newPassword - The new password to set for the user.
    * @returns A promise that resolves when the password has been successfully updated.
    */
-  async updatePassword(email: string, newPassword: string): Promise<void> {
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
     const hashedPassword = await this.hashService.hash(newPassword);
-    return this.userRepository.updatePassword(email, hashedPassword);
+    return this.userRepository.updatePassword(userId, hashedPassword);
   }
 
   /**
@@ -270,5 +280,42 @@ export class UserService {
 
     const allPaths = [...avatarPaths, ...pastryMediaPaths];
     await Promise.all(allPaths.map((path) => rm(path)));
+  }
+
+  /**
+   * Verifies the old password and updates the user's password with a new one.
+   * Optionally logs out the user from other devices.
+   *
+   * @param userId - The ID of the user whose password is to be updated.
+   * @param oldPassword - The current password of the user for verification.
+   * @param newPassword - The new password to set for the user.
+   * @param logoutFromOtherDevices - Flag to indicate whether to log out from other devices.
+   *
+   * @throws NotFoundException If the user is not found.
+   * @throws BadRequestException If the old password is incorrect.
+   *
+   * @returns A promise that resolves when the password has been successfully updated.
+   */
+  async verifyAndUpdatePassword(
+    userId: string,
+    { oldPassword, logoutFromOtherDevices, newPassword }: VerifyAndUpdatePasswordServiceRequest,
+  ): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordCorrect = await this.hashService.compare(oldPassword, user.password);
+
+    if (!isPasswordCorrect) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    await this.updatePassword(userId, newPassword);
+
+    if (logoutFromOtherDevices) {
+      await this.jwtTokenService.deleteRefreshTokensByUserId(userId);
+    }
   }
 }

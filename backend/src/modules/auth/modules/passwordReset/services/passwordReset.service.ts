@@ -110,7 +110,7 @@ export class PasswordResetService {
       throw new NotFoundException('User not found');
     }
 
-    await this.userService.updatePassword(email, newPassword);
+    await this.userService.updatePassword(user.id, newPassword);
 
     if (logoutFromOtherDevices) {
       await this.jwtTokenService.deleteRefreshTokensByUserId(user.id);

@@ -151,7 +151,7 @@ describe('Сервис сброса пароля', () => {
 
       expect(userService.updatePassword).toHaveBeenCalledTimes(1);
       expect(userService.updatePassword).toHaveBeenCalledWith(
-        mockUpdatePassword.email,
+        mockUser.id,
         mockUpdatePassword.newPassword,
       );
     });

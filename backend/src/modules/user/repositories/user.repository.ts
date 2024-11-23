@@ -154,17 +154,18 @@ export class UserRepository {
       },
     });
   }
+
   /**
    * Updates the user's password in the database.
    *
-   * @param email - The email of the user whose password is to be updated.
+   * @param userId - The ID of the user whose password is to be updated.
    * @param newPassword - The new password to set for the user.
    * @returns A promise that resolves when the password has been successfully updated.
    */
-  async updatePassword(email: string, newPassword: string): Promise<void> {
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
     await this.databaseService.user.update({
       where: {
-        email,
+        id: userId,
       },
       data: {
         password: newPassword,

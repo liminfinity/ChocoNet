@@ -22,6 +22,7 @@ import { ROUTER_PATHS as PASTRY_ROUTER_PATHS } from '../pastry/constants';
     UserAvatarModule,
     forwardRef(() => PastryMediaModule),
     forwardRef(() => PastryModule),
+    JwtTokenModule,
   ],
   providers: [UserRepository, UserService],
   controllers: [UserController],

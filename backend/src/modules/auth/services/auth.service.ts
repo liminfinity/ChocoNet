@@ -51,8 +51,8 @@ export class AuthService {
 
     const { password, id, ...userWithoutPassword } = user;
 
-    const isEqual = await this.hashService.compare(loginDto.password, password);
-    if (!isEqual) {
+    const isPasswordCorrect = await this.hashService.compare(loginDto.password, password);
+    if (!isPasswordCorrect) {
       throw new NotFoundException('User not found');
     }
 

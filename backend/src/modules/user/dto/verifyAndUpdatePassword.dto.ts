@@ -1,9 +1,16 @@
-import { EmailDto } from '@/common/dto';
 import { IsPassword, Match } from '@/modules/auth/decorators';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsOptional } from 'class-validator';
 
-export class UpdatePasswordDto extends EmailDto {
+export class VerifyAndUpdatePasswordDto {
+  @ApiProperty({
+    description: 'Old password',
+    example: 'password123',
+    required: true,
+  })
+  @IsPassword()
+  oldPassword!: string;
+
   @ApiProperty({
     description: 'New password',
     example: 'password123',
