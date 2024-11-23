@@ -85,7 +85,7 @@ export class PhoneVerificationService {
       type: VerificationCodeType.PHONE_CONFIRMATION,
     });
 
-    await this.phoneVerificationRepository.update(userId, true);
+    await this.phoneVerificationRepository.upsert(userId, true);
   }
 
   /**
@@ -113,5 +113,22 @@ export class PhoneVerificationService {
     const verificationSms = createVerificationSms(verifcationCode);
 
     await this.smsService.sendSms(deletePlusFromPhone(phone), verificationSms);
+  }
+
+  /**
+   * Resets the phone verification status for the given user to unverified.
+   *
+   * @param userId - The ID of the user whose verification status is to be reset.
+   * @throws NotFoundException If the user is not found.
+   * @returns A promise that resolves when the verification status has been successfully reset.
+   */
+  async resetVerification(userId: string): Promise<void> {
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.phoneVerificationRepository.upsert(userId, false);
   }
 }

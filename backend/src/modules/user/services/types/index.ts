@@ -3,5 +3,7 @@ export type {
   FindUserByIdServiceResponse,
   BaseFindUserServiceResponse,
   AvatarServiceResponse,
-  FindByNicknameServiceResponse
+  FindByNicknameServiceResponse,
 } from './responses';
+
+export type { VerifyAndUpdatePasswordServiceRequest } from './requests';

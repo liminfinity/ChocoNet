@@ -1,19 +1,31 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../services';
 import { ROUTER_PATHS } from '../constants';
 import { deleteLeadingColonFromPath, joinPaths } from '@/common/lib';
 import { User } from '../decorators/user';
-import { GetGuestProfileDto, GetOtherProfileDto, GetSelfProfileDto } from '../dto';
 import {
+  GetGuestProfileDto,
+  GetOtherProfileDto,
+  GetSelfProfileDto,
+  UpdateUserDto,
+  VerifyAndUpdatePasswordDto,
+} from '../dto';
+import {
+  ApiBody,
+  ApiConflictResponse,
   ApiCookieAuth,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -29,6 +41,8 @@ import { GetUserPastriesDto, GetUserPastryQueriesDto } from '@/modules/pastry/dt
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { COOKIES } from '@/modules/auth/constants';
 import { UserIdentityGuard } from '../guards';
+import omit from 'lodash.omit';
+import { AvatarsInterceptor } from '../interceptors';
 
 @ApiTags(ROUTER_PATHS.USERS)
 @Controller(ROUTER_PATHS.USERS)
@@ -107,5 +121,62 @@ export class UserController {
     @Param(deleteLeadingColonFromPath(ROUTER_PATHS.USER)) userId: string,
   ): Promise<void> {
     return this.userService.delete(userId);
+  }
+
+  @ApiOperation({
+    summary: 'Verify and update password',
+  })
+  @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
+  @ApiBody({ type: VerifyAndUpdatePasswordDto })
+  @ApiNoContentResponse({ description: 'Successfully verified and updated password' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiForbiddenResponse({ description: 'You do not have permission to modify this user' })
+  @ApiParam({
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.USER),
+    type: String,
+    description: 'User ID',
+    required: true,
+    example: '123e4567-e89b-12d3-a456-426655440000',
+  })
+  @Patch(joinPaths(ROUTER_PATHS.USER, ROUTER_PATHS.PASSWORD))
+  @UseGuards(JwtAuthGuard, UserIdentityGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async verifyAndUpdatePassword(
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.USER)) userId: string,
+    @Body() verifyAndUpdatePasswordDto: VerifyAndUpdatePasswordDto,
+  ): Promise<void> {
+    return this.userService.verifyAndUpdatePassword(
+      userId,
+      omit(verifyAndUpdatePasswordDto, ['confirmPassword']),
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Update user',
+  })
+  @ApiCookieAuth(COOKIES.ACCESS_TOKEN)
+  @ApiBody({ type: UpdateUserDto })
+  @ApiNoContentResponse({ description: 'Successfully updated user' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiConflictResponse({ description: 'Nickname or email already exists' })
+  @ApiForbiddenResponse({ description: 'You do not have permission to modify this user' })
+  @ApiParam({
+    name: deleteLeadingColonFromPath(ROUTER_PATHS.USER),
+    type: String,
+    description: 'User ID',
+    required: true,
+    example: '123e4567-e89b-12d3-a456-426655440000',
+  })
+  @Patch(ROUTER_PATHS.USER)
+  @UseGuards(JwtAuthGuard, UserIdentityGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(AvatarsInterceptor)
+  async update(
+    @Param(deleteLeadingColonFromPath(ROUTER_PATHS.USER)) userId: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFiles() avatars: Express.Multer.File[],
+  ): Promise<void> {
+    updateUserDto.avatars = avatars;
+    return this.userService.update(userId, updateUserDto);
   }
 }

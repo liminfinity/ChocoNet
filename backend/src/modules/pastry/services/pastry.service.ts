@@ -146,10 +146,13 @@ export class PastryService {
 
     await this.pastryRepository.update(pastryId, updatePartyRequest);
 
-    for (const { filename } of filesToRemove) {
-      const path = getPathToPastryMedia(filename);
-      await rm(path);
-    }
+
+    await Promise.all(
+      filesToRemove.map(({ filename }) => {
+        const path = getPathToPastryMedia(filename);
+        return rm(path);
+      }),
+    );
   }
 
   /**

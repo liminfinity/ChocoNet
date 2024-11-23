@@ -5,5 +5,7 @@ export type {
   UserRepositoryResponse,
   BaseFindUserRepositoryResponse,
   GetProfileRepositoryResponse,
-  FindByNicknameRepositoryResponse
+  FindByNicknameRepositoryResponse,
 } from './responses';
+
+export { UpdateUserRepositoryRequest } from './requests';

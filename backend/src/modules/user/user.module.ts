@@ -6,11 +6,13 @@ import { AuthMiddleware } from '../auth';
 import { joinPaths } from '@/common/lib';
 import { ROUTER_PATHS } from './constants';
 import { PastryLikeModule, PastryMediaModule } from '../pastry/modules';
-import { UserAvatarModule, UserFollowModule } from './modules';
+import { PhoneVerificationModule, UserAvatarModule, UserFollowModule } from './modules';
 import { JwtTokenModule } from '../auth/modules';
 import { UserController } from './controllers';
 import { PastryModule } from '../pastry';
 import { ROUTER_PATHS as PASTRY_ROUTER_PATHS } from '../pastry/constants';
+import { MulterModule } from '@nestjs/platform-express';
+import { MulterConfigService } from '@/common/services';
 
 @Module({
   imports: [
@@ -20,8 +22,13 @@ import { ROUTER_PATHS as PASTRY_ROUTER_PATHS } from '../pastry/constants';
     UserFollowModule,
     GeolocationModule,
     UserAvatarModule,
+    PhoneVerificationModule,
+    MulterModule.registerAsync({
+      useClass: MulterConfigService,
+    }),
     forwardRef(() => PastryMediaModule),
     forwardRef(() => PastryModule),
+    JwtTokenModule,
   ],
   providers: [UserRepository, UserService],
   controllers: [UserController],

@@ -19,19 +19,28 @@ export class PhoneVerificationRepository {
     });
   }
 
+
   /**
-   * Updates the phone verification status for the given user ID.
+   * Creates a new phone verification entry for the given user ID if it does not
+   * exist, or updates the existing phone verification entry if it does exist.
    *
-   * @param userId - The ID of the user whose phone verification status is to be updated.
-   * @param isVerified - A boolean indicating whether the user's phone number has been verified.
-   * @returns A promise that resolves when the phone verification status has been successfully updated.
+   * @param userId - The ID of the user for whom the phone verification entry is
+   * to be created or updated.
+   * @param isVerified - The new value for the isVerified field.
+   *
+   * @returns A promise that resolves when the phone verification entry has been
+   * successfully created or updated.
    */
-  async update(userId: string, isVerified: boolean): Promise<void> {
-    await this.databaseService.phoneVerification.update({
+  async upsert(userId: string, isVerified: boolean): Promise<void> {
+    await this.databaseService.phoneVerification.upsert({
       where: {
         userId,
       },
-      data: {
+      update: {
+        isVerified,
+      },
+      create: {
+        userId,
         isVerified,
       },
     });

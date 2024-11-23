@@ -1,4 +1,11 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRepository } from '../repositories';
 import { CreateUserRequest, CreateUserResponse } from '../types';
 import { getPathToAvatar, mapAvatarsToPaths } from '../lib';
@@ -6,11 +13,12 @@ import {
   FindByNicknameServiceResponse,
   FindUserByEmailServiceResponse,
   FindUserByIdServiceResponse,
+  VerifyAndUpdatePasswordServiceRequest,
 } from './types';
 import { GeolocationService, HashService } from '@/common/modules';
-import { GetGuestProfileDto, GetOtherProfileDto, GetSelfProfileDto } from '../dto';
+import { GetGuestProfileDto, GetOtherProfileDto, GetSelfProfileDto, UpdateUserDto } from '../dto';
 import { PastryLikeService } from '@/modules/pastry/modules/pastryLike';
-import { UserAvatarService, UserFollowService } from '../modules';
+import { PhoneVerificationService, UserAvatarService, UserFollowService } from '../modules';
 import omit from 'lodash.omit';
 import { getFormattedGeolocation } from '@/modules/pastry/lib/getFormattedGeolocation';
 import { GetUserPastriesDto, GetUserPastryQueriesDto } from '@/modules/pastry/dto';
@@ -18,6 +26,9 @@ import { PastryService } from '@/modules/pastry/services';
 import { rm } from 'node:fs/promises';
 import { PastryMediaService } from '@/modules/pastry/modules';
 import { getPathToPastryMedia } from '@/modules/pastry/lib';
+import { JwtTokenService } from '@/modules/auth/modules';
+import { UpdateUserRepositoryRequest } from '../repositories/types';
+import { mapFilesToFilenames } from '@/common/lib';
 
 @Injectable()
 export class UserService {
@@ -32,6 +43,8 @@ export class UserService {
    * @param pastryService The service for the Pastry entity.
    * @param userAvatarService The service for the UserAvatar entity.
    * @param pastryMediaService The service for the PastryMedia entity.
+   * @param jwtTokenService The service for JWT tokens.
+   * @param phoneVerificationService The service for phone verification.
    */
   constructor(
     private readonly userRepository: UserRepository,
@@ -44,6 +57,8 @@ export class UserService {
     private readonly userAvatarService: UserAvatarService,
     @Inject(forwardRef(() => PastryMediaService))
     private readonly pastryMediaService: PastryMediaService,
+    private readonly jwtTokenService: JwtTokenService,
+    private readonly phoneVerificationService: PhoneVerificationService,
   ) {}
 
   /**
@@ -122,15 +137,15 @@ export class UserService {
   }
 
   /**
-   * Updates the user's password in the database.
+   * Updates a user's password in the database.
    *
-   * @param email - The email of the user whose password is to be updated.
+   * @param userId - The ID of the user whose password is to be updated.
    * @param newPassword - The new password to set for the user.
    * @returns A promise that resolves when the password has been successfully updated.
    */
-  async updatePassword(email: string, newPassword: string): Promise<void> {
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
     const hashedPassword = await this.hashService.hash(newPassword);
-    return this.userRepository.updatePassword(email, hashedPassword);
+    return this.userRepository.updatePassword(userId, hashedPassword);
   }
 
   /**
@@ -270,5 +285,102 @@ export class UserService {
 
     const allPaths = [...avatarPaths, ...pastryMediaPaths];
     await Promise.all(allPaths.map((path) => rm(path)));
+  }
+
+  /**
+   * Verifies the old password and updates the user's password with a new one.
+   * Optionally logs out the user from other devices.
+   *
+   * @param userId - The ID of the user whose password is to be updated.
+   * @param oldPassword - The current password of the user for verification.
+   * @param newPassword - The new password to set for the user.
+   * @param logoutFromOtherDevices - Flag to indicate whether to log out from other devices.
+   *
+   * @throws NotFoundException If the user is not found.
+   * @throws BadRequestException If the old password is incorrect.
+   *
+   * @returns A promise that resolves when the password has been successfully updated.
+   */
+  async verifyAndUpdatePassword(
+    userId: string,
+    { oldPassword, logoutFromOtherDevices, newPassword }: VerifyAndUpdatePasswordServiceRequest,
+  ): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordCorrect = await this.hashService.compare(oldPassword, user.password);
+
+    if (!isPasswordCorrect) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    await this.updatePassword(userId, newPassword);
+
+    if (logoutFromOtherDevices) {
+      await this.jwtTokenService.deleteRefreshTokensByUserId(userId);
+    }
+  }
+
+  /**
+   * Updates a user's data.
+   *
+   * @param userId - The ID of the user to update.
+   * @param updateUserDto - The update data.
+   * @param {string[]} updateUserDto.avatarsToRemove - IDs of avatars to remove.
+   * @param {Express.Multer.File[]} updateUserDto.avatars - New avatar files to add.
+   * @param {string} [updateUserDto.nickname] - New nickname.
+   * @param {string} [updateUserDto.phone] - New phone number.
+   * @param {string} [updateUserDto.firstName] - New first name.
+   * @param {string} [updateUserDto.lastName] - New last name.
+   * @param {string} [updateUserDto.about] - New about text.
+   * @param {GeolocationDto} [updateUserDto.geolocation] - New geolocation.
+   *
+   * @throws ConflictException If the new nickname already exists.
+   *
+   * @returns A promise that resolves when the user's data has been successfully updated.
+   */
+  async update(
+    userId: string,
+    { avatarsToRemove, avatars, email, nickname, ...updateUserDto }: UpdateUserDto,
+  ): Promise<void> {
+    if (email) {
+      const existingEmail = await this.userRepository.findByEmail(email);
+
+      if (existingEmail && existingEmail.id !== userId) {
+        throw new ConflictException('Email already exists');
+      }
+    }
+
+    if (nickname) {
+      const existingNickname = await this.userRepository.findByNickname(nickname);
+
+      if (existingNickname && existingNickname.id !== userId) {
+        throw new ConflictException('Nickname already exists');
+      }
+    }
+
+    const updateUserRequest: UpdateUserRepositoryRequest = {
+      ...updateUserDto,
+      nickname,
+      email,
+      avatarsToRemove: avatarsToRemove || [],
+      avatars: avatars && mapFilesToFilenames(avatars),
+    };
+
+    const filesToRemove = await this.userAvatarService.findByIds(updateUserRequest.avatarsToRemove);
+
+    await this.userRepository.update(userId, updateUserRequest);
+
+    await this.phoneVerificationService.resetVerification(userId);
+
+    await Promise.all(
+      filesToRemove.map(({ filename }) => {
+        const path = getPathToAvatar(filename);
+        return rm(path);
+      }),
+    );
   }
 }
