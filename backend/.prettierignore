@@ -26,3 +26,6 @@ coverage
 
 #typescript
 .tsbuildinfo
+
+# Swagger
+swagger.yaml
