@@ -1,85 +1,156 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ChocoNet Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+ChocoNet — это система для оптимизации процесса поиска и заказа кондитерских изделий. Она делает покупку сладких угощений проще и удобнее. Этот репозиторий содержит серверную часть (backend) проекта.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🔍 Для чего?
 
-## Description
+Процесс поиска кондитерских товаров на данный момент требует использования множества платформ: мессенджеров, соцсетей, личных рекомендаций. Новое решение обеспечит удобный доступ к информации о кондитерских услугах и улучшит позиционирование продавцов на рынке.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📋 Описание проекта
 
-## Project setup
+ChocoNet — это платформа для поиска и заказа кондитерских изделий. Система упрощает взаимодействие между покупателями и продавцами, улучшая поиск и доступность услуг.
 
-```bash
-$ npm install
-```
+### Основные возможности:
 
-## Compile and run the project
+- Регистрация и аутентификация пользователей.
+- Подтверждение email и номера телефона.
+- Множество параметров для фильтрации и сортировки
+- Возможность подписаться на понравившегося кондитера
+- Просмотр товаров, похожих на выбранный
+- Возможность добавить товар в избранное
+- Управление собственным профилем
+- Управление своими кондитерскими изделиями
+- Просмотр кондитерских изделий без авторизации
 
-```bash
-# development
-$ npm run start
+## ⚙️ Стек технологий
 
-# watch mode
-$ npm run start:dev
+- **NestJS** — фреймворк для разработки серверных приложений на Node.js.
+- **Prisma** — ORM для работы с базой данных.
+- **PostgreSQL** — реляционная база данных.
+- **TypeScript** — язык программирования.
+- **JWT** — для аутентификации пользователей.
+- **Axios** — для HTTP-запросов.
+- **Passport.js** — для аутентификации.
+- **Winston** — для логирования.
+- **Swagger** — для генерации документации API.
+- **Multer** — для обработки загрузки файлов.
+- **Pug** — шаблонизатор для рендеринга HTML.
+- **dotenv** — для работы с переменными окружения.
 
-# production mode
-$ npm run start:prod
-```
+## 📦 Установка
 
-## Run tests
+Для того чтобы запустить проект на своём локальном сервере, выполните следующие шаги:
+
+### 1. Клонирование репозитория
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/liminfinity/ChocoNet.git
 ```
 
-## Resources
+### 2. Установка зависимостей
 
-Check out a few resources that may come in handy when working with NestJS:
+Перейдите в каталог проекта и установите все необходимые зависимости:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+cd backend
+npm install
+```
 
-## Support
+### 3. Настройка переменных окружения
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Создайте файл `.env.local` на основе примера `.env.example`
 
-## Stay in touch
+### 4. Настройка базы данных
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Для работы с базой данных используйте PostgreSQL. Убедитесь, что у вас есть доступ к базе данных.
 
-## License
+### 5. Запуск миграций Prisma
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Для того чтобы создать все необходимые таблицы в базе данных, выполните команду миграции:
+
+```bash
+npm run prisma:migrate
+```
+
+### 6. Запуск проекта
+
+Запустите сервер с помощью команды:
+
+```bash
+npm run start:dev
+```
+
+Теперь ваш сервер будет доступен по адресу http://localhost:3000.
+
+## 🧑‍💻 API
+
+Для документации по API используйте встроенный Swagger. Откройте браузер и перейдите по адресу:
+
+```bash
+http://localhost:3000/api
+```
+
+Здесь будет доступен полный список всех API эндпоинтов и их описание.
+
+## 📚 Документация базы данных
+
+Для подробной документации по структуре базы данных и схемам используйте dbdocs.io.
+
+Перейдите по ссылке для просмотра: [dbdocs.io](https://dbdocs.io/polieshko04/choconet)
+
+## 🚀 Разработка
+
+### Структура проекта:
+
+```plaintext
+├── src/
+│   ├── modules/
+│   │   ├── auth/         # Модуль для аутентификации и авторизации пользователей.
+│   │   ├── user/         # Модуль для управления данными пользователей.
+│   │   ├── pastry/       # Модуль для управления кондитерскими изделиями.
+│   └── common/           # Утилиты и общие компоненты для всех модулей.
+├── prisma/
+│   ├── dbml/             # DBML файлы для визуального представления структуры базы данных.
+│   ├── migrations/       # Миграции для работы с базой данных.
+│   └── schema.prisma     # Схема Prisma для работы с базой данных.
+├── public/
+│   └── images/           # Папка для хранения изображений.
+├── nest-cli.json         # Конфигурация NestJS CLI.
+├── Dockerfile            # Docker конфигурация для контейнеризации приложения.
+├── .dockerignore         # Список файлов и папок для игнорирования Docker'ом.
+├── README.md             # Документация по проекту.
+├── package.json          # Зависимости и скрипты проекта.
+├── package-lock.json     # Фиксированные версии зависимостей.
+├── tsconfig.json         # Основной конфиг TypeScript.
+├── tsconfig.build.json   # Конфиг для сборки проекта.
+├── .gitignore            # Список файлов и папок для игнорирования Git.
+├── .prettierignore       # Список файлов и папок для игнорирования Prettier'ом.
+├── .prettierrc           # Конфигурация Prettier.
+├── .lintstagedrc         # Конфигурация для lint-staged.
+├── .jest.config.json     # Конфигурация для Jest (тестирование).
+├── .editorconfig         # Конфигурация редактора кода.
+├── .eslint.config.mjs    # Конфигурация для ESLint.
+├── .env.example          # Пример файла переменных окружения.
+├── .env.development      # Переменные окружения для разработки.
+├── .env.production       # Переменные окружения для продакшн-среды.
+└── .env.local            # Локальные переменные окружения.
+```
+
+### Команды для разработки:
+
+- `npm run start:dev` — запуск проекта в режиме разработки.
+- `npm run build` — сборка проекта.
+- `npm run prisma:migrate` — запуск миграций Prisma.
+- `npm run test` — запуск тестов.
+
+## 🧑‍🤝‍🧑 Контрибьютинг
+
+Приветствуются предложения по улучшению проекта! Если вы хотите внести изменения или улучшения, пожалуйста, откройте issue или создайте pull request.
+
+1. Форкните репозиторий.
+2. Создайте ветку для вашего изменения.
+3. Отправьте pull request.
+
+## 💬 Связь
+
+Если у вас есть вопросы или предложения, пожалуйста, не стесняйтесь обращаться через issues или пишите по адресу polieshko04@gmail.com.
