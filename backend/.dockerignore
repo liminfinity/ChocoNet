@@ -70,3 +70,6 @@ nodemon.json
 .env.test.local
 .env.production.local
 .env.local
+
+# Swagger
+swagger.yaml
