@@ -12,9 +12,10 @@ import { createPaginationCondition } from '@/common/lib';
  * @param query - Query parameters from GetFollowQueriesDto, excluding pagination
  * @returns Prisma.UserFollowFindManyArgs - Object containing query conditions for fetching user follows
  */
-export const createFollowQuery = (
-  { pagination, ...query }: GetFollowQueriesDto
-): Prisma.UserFollowFindManyArgs => {
+export const createFollowQuery = ({
+  pagination,
+  ...query
+}: GetFollowQueriesDto): Prisma.UserFollowFindManyArgs => {
   const where = createFollowWhereCondition(pick(query, ['followType', 'name']));
 
   const orderBy = createFollowOrderByCondition(pick(query, ['orderBy', 'order']));

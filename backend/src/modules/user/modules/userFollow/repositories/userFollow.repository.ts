@@ -70,7 +70,6 @@ export class UserFollowRepository {
    * @returns A promise that resolves to a response containing the list of follow relationships with user details and a creation date.
    */
   async getFollows(queryDto: GetFollowQueriesDto, userId: string): Promise<GetFollowsResponse> {
-
     const followQuery = createFollowQuery(queryDto);
 
     const isFollowerSelected = queryDto.followType === FollowType.FOLLOWER;

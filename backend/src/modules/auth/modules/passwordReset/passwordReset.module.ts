@@ -8,7 +8,12 @@ import { JwtTokenModule } from '../jwtToken';
 import { UserModule } from '@/modules/user';
 
 @Module({
-  imports: [forwardRef(() => UserModule), VerificationCodeModule, JwtTokenModule, MailerModule.forRoot(mailerConfig)],
+  imports: [
+    forwardRef(() => UserModule),
+    VerificationCodeModule,
+    JwtTokenModule,
+    MailerModule.forRoot(mailerConfig),
+  ],
   providers: [PasswordResetService],
   controllers: [PasswordResetController],
   exports: [PasswordResetService],

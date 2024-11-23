@@ -146,7 +146,6 @@ export class PastryService {
 
     await this.pastryRepository.update(pastryId, updatePartyRequest);
 
-
     await Promise.all(
       filesToRemove.map(({ filename }) => {
         const path = getPathToPastryMedia(filename);

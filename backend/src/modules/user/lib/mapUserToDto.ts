@@ -12,7 +12,10 @@ import { PartialDeep, SetRequired } from 'type-fest';
 export const mapUserToDto = ({
   avatars,
   ...user
-}: SetRequired<PartialDeep<UserWithRelations>, 'email' | 'nickname' | 'firstName' | 'lastName'>): UserDto => {
+}: SetRequired<
+  PartialDeep<UserWithRelations>,
+  'email' | 'nickname' | 'firstName' | 'lastName'
+>): UserDto => {
   const userDto = pick(user, ['email', 'nickname', 'firstName', 'lastName']);
 
   return {
