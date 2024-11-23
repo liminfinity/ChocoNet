@@ -11,6 +11,7 @@ import {
   VERIFICATION_CODE_EXPIRATION_TIME,
   VERIFICATION_CODE_REQUEST_INTERVAL,
 } from '../constants';
+import { GetExpiredCodesRepositoryResponse } from './types';
 
 @Injectable()
 export class VerificationCodeRepository {
@@ -126,6 +127,34 @@ export class VerificationCodeRepository {
       where: {
         updatedAt: {
           lte: new Date(Date.now() - VERIFICATION_CODE_EXPIRATION_TIME),
+        },
+      },
+    });
+  }
+
+  /**
+   * Finds all expired verification codes from the database, optionally filtered by type.
+   * @param type The type of verification code to filter by. If not provided, all expired codes are returned.
+   * @returns A promise that resolves with an array of expired verification codes and their associated user.
+   */
+  async getExpiredCodes(type?: VerificationCodeType): Promise<GetExpiredCodesRepositoryResponse> {
+    return this.databaseService.verificationCode.findMany({
+      where: {
+        type,
+        updatedAt: {
+          lte: new Date(Date.now() - VERIFICATION_CODE_EXPIRATION_TIME),
+        },
+      },
+      select: {
+        id: true,
+        code: true,
+        email: true,
+        type: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+          },
         },
       },
     });

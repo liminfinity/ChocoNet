@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { VerificationCodeRepository } from '../repositories';
 import {
   DeleteVerificationCodeRequest,
@@ -10,10 +10,15 @@ import { randint } from '@/common/lib';
 import { Interval } from '@nestjs/schedule';
 import { VERIFICATION_CODE_REMOVAL_INTERVAL } from '../constants';
 import { VerificationCodeType } from '@prisma/client';
+import { UserService } from '@/modules/user';
 
 @Injectable()
 export class VerificationCodeService implements OnModuleInit {
-  constructor(private readonly verificationCodeRepository: VerificationCodeRepository) {}
+  constructor(
+    private readonly verificationCodeRepository: VerificationCodeRepository,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
+  ) {}
 
   /**
    * Save a verification code for a user.
@@ -81,17 +86,29 @@ export class VerificationCodeService implements OnModuleInit {
    * @returns A promise that resolves when expired verification codes have been removed.
    */
   async onModuleInit(): Promise<void> {
-    await this.verificationCodeRepository.deleteExpiredCodes();
+    await this.deleteExpiredCodes();
   }
 
   /**
-   * Removes expired verification codes.
-   * This is called periodically to remove expired verification codes.
-   * @returns A promise that resolves when expired verification codes have been removed.
+   * Removes expired verification codes of type EMAIL_CONFIRMATION and any associated users.
+   * Called periodically via the Interval decorator.
+   * @returns A promise that resolves when expired verification codes and associated users have been removed.
    */
   @Interval(VERIFICATION_CODE_REMOVAL_INTERVAL)
   async deleteExpiredCodes(): Promise<void> {
+    const expiredCodes = await this.verificationCodeRepository.getExpiredCodes(
+      VerificationCodeType.EMAIL_CONFIRMATION,
+    );
+
+    const userIdsToDelete = expiredCodes.map((code) => code.user.id);
+
     await this.verificationCodeRepository.deleteExpiredCodes();
+
+    await Promise.all(
+      userIdsToDelete.map(async (userId) => {
+        await this.userService.delete(userId);
+      }),
+    );
   }
 
   /**
