@@ -19,7 +19,6 @@ export class PhoneVerificationRepository {
     });
   }
 
-
   /**
    * Creates a new phone verification entry for the given user ID if it does not
    * exist, or updates the existing phone verification entry if it does exist.

@@ -24,4 +24,6 @@ export type UpdatePastryRepositoryRequest = SetRequired<
   'mediaToRemove'
 >;
 
-export type PastryForGettingSimilar = Pick<Pastry, 'name' | 'id'> & { categories: PastryCategoryEnum[] };
+export type PastryForGettingSimilar = Pick<Pastry, 'name' | 'id'> & {
+  categories: PastryCategoryEnum[];
+};

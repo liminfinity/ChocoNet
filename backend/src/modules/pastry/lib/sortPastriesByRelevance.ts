@@ -47,4 +47,3 @@ export const sortPastriesByRelevance = (
     return 0; // Если ничего не различается, оставляем как есть
   });
 };
-

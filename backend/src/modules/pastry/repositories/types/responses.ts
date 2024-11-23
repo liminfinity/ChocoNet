@@ -34,5 +34,3 @@ export type GetUserPastriesResponse = GetPastryItemResponse[];
 export type GetSimilarPastriesResponse = (GetPastryItemResponse & {
   categories: PastryCategoryEnum[];
 })[];
-
-

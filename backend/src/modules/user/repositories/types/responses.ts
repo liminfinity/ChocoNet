@@ -24,5 +24,5 @@ export type GetProfileRepositoryResponse = Omit<User, 'id' | 'password'> & {
     followers: number;
     following: number;
     pastries: number;
-  }
+  };
 };

@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import {GetSimilarPastryQueriesDto } from '../dto';
+import { GetSimilarPastryQueriesDto } from '../dto';
 import pick from 'lodash.pick';
 import { createPastryOrderByCondition } from './createPastryOrderByCondition';
 import { createPaginationCondition } from '@/common/lib';

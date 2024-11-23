@@ -1,7 +1,6 @@
 import { ROUTER_PATHS } from '@/common/constants';
 import { resolve } from 'node:path';
 
-
 /**
  * Given a filename, returns the path to the avatar.
  * The path is the concatenation of the home path, the uploads path, the avatars path, and the filename.

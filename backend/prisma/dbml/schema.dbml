@@ -1,0 +1,208 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  id String [pk]
+  email String [unique, not null]
+  password String [not null]
+  nickname String [unique, not null]
+  firstName String [not null]
+  lastName String [not null]
+  phone String [not null]
+  geolocation geolocations
+  about String
+  avatars avatars [not null]
+  refreshTokens refresh_tokens [not null]
+  verificationCodes verification_codes [not null]
+  phoneVerification phone_verification
+  pastries pastries [not null]
+  pastryLikes pastry_likes [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  followers user_follows [not null]
+  following user_follows [not null]
+}
+
+Table geolocations {
+  id String [pk]
+  lat Float [not null]
+  lng Float [not null]
+  userId String [unique, not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table avatars {
+  id String [pk]
+  filename String [unique, not null]
+  userId String [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table refresh_tokens {
+  id String [pk]
+  token String [unique, not null]
+  userId String [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table verification_codes {
+  id String [pk]
+  code String [not null]
+  type VerificationCodeType [not null]
+  email String [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (type, email) [unique]
+  }
+}
+
+Table phone_verification {
+  id String [pk]
+  isVerified Boolean [not null, default: false]
+  userId String [unique, not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table user_follows {
+  id String [pk]
+  followerId String [not null]
+  followingId String [not null]
+  follower users [not null]
+  following users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (followerId, followingId) [unique]
+  }
+}
+
+Table pastries {
+  id String [pk]
+  name String [not null]
+  price Float [not null]
+  description String
+  unit PastryUnit [not null]
+  contact pastry_contacts
+  geolocation pastry_geolocations
+  media pastry_media [not null]
+  categories pastry_categories [not null]
+  likes pastry_likes [not null]
+  userId String [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table pastry_contacts {
+  id String [pk]
+  phone String [not null]
+  pastryId String [unique, not null]
+  pastry pastries [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table pastry_geolocations {
+  id String [pk]
+  lat Float [not null]
+  lng Float [not null]
+  pastryId String [unique, not null]
+  pastry pastries [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table pastry_media {
+  id String [pk]
+  filename String [not null]
+  pastryId String [not null]
+  pastry pastries [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table pastry_categories {
+  id String [pk]
+  category PastryCategoryEnum [not null]
+  pastryId String [not null]
+  pastry pastries [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table pastry_likes {
+  id String [pk]
+  pastryId String [not null]
+  pastry pastries [not null]
+  userId String [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (pastryId, userId) [unique]
+  }
+}
+
+Enum VerificationCodeType {
+  EMAIL_CONFIRMATION
+  PASSWORD_RESET
+  PHONE_CONFIRMATION
+}
+
+Enum PastryCategoryEnum {
+  CAKES_AND_PASTRIES
+  COOKIES_AND_BISCUITS
+  CHOCOLATE_PRODUCTS
+  ICE_CREAM_AND_FROZEN_DESSERTS
+  CANDIES_AND_LOLLIPOPS
+  BAKED_GOODS_AND_SWEETS
+}
+
+Enum PastryUnit {
+  GRAM
+  KILOGRAM
+  PIECE
+  LITER
+}
+
+Ref: geolocations.userId - users.id [delete: Cascade]
+
+Ref: avatars.userId > users.id [delete: Cascade]
+
+Ref: refresh_tokens.userId > users.id [delete: Cascade]
+
+Ref: verification_codes.email > users.email [delete: Cascade]
+
+Ref: phone_verification.userId - users.id [delete: Cascade]
+
+Ref: user_follows.followerId > users.id [delete: Cascade]
+
+Ref: user_follows.followingId > users.id [delete: Cascade]
+
+Ref: pastries.userId > users.id [delete: Cascade]
+
+Ref: pastry_contacts.pastryId - pastries.id [delete: Cascade]
+
+Ref: pastry_geolocations.pastryId - pastries.id [delete: Cascade]
+
+Ref: pastry_media.pastryId > pastries.id [delete: Cascade]
+
+Ref: pastry_categories.pastryId > pastries.id [delete: Cascade]
+
+Ref: pastry_likes.pastryId > pastries.id [delete: Cascade]
+
+Ref: pastry_likes.userId > users.id [delete: Cascade]
