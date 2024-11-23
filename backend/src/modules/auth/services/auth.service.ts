@@ -25,6 +25,7 @@ import { createConfirmationMail } from '../lib';
 import omit from 'lodash.omit';
 import { VerificationCodeType } from '@prisma/client';
 import { mapFilesToFilenames } from '@/common/lib';
+import { mapUserToDto } from '@/modules/user/lib';
 
 @Injectable()
 export class AuthService {
@@ -78,7 +79,7 @@ export class AuthService {
     });
 
     return {
-      user: userWithoutPassword,
+      user: mapUserToDto(userWithoutPassword),
       accessToken,
       refreshToken,
     };
@@ -143,7 +144,7 @@ export class AuthService {
       return {
         accessToken,
         refreshToken,
-        user: userWithoutPassword,
+        user: mapUserToDto(userWithoutPassword),
       };
     } catch (error) {
       if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
@@ -234,7 +235,7 @@ export class AuthService {
     });
 
     return {
-      user: userWithoutPassword,
+      user: mapUserToDto(userWithoutPassword),
       accessToken,
       refreshToken,
     };
