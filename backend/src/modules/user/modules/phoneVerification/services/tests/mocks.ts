@@ -1,15 +1,15 @@
-import { faker } from '@faker-js/faker';
-import { BaseFindUserServiceResponse } from '@/modules/user/services/types';
-import { BaseFindUserRepositoryResponse } from '@/modules/user/repositories/types';
-import { mapAvatarsToPaths } from '@/modules/user/lib';
+import { BaseFindUserServiceResponse } from "@/modules/user/services/types";
+import { faker } from "@faker-js/faker";
 
-export const mockRepositoryUser: NonNullable<BaseFindUserRepositoryResponse> = {
-  id: faker.string.uuid(),
+export const mockUserId = faker.string.uuid();
+
+export const mockUser: BaseFindUserServiceResponse = {
+  id: mockUserId,
   email: faker.internet.email(),
-  password: faker.internet.password(),
-  nickname: faker.internet.username(),
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),
+  nickname: faker.internet.username(),
+  password: faker.internet.password(),
   phone: faker.phone.number(),
   about: faker.person.bio(),
   createdAt: faker.date.recent(),
@@ -18,15 +18,7 @@ export const mockRepositoryUser: NonNullable<BaseFindUserRepositoryResponse> = {
     lat: faker.location.latitude(),
     lng: faker.location.longitude(),
   },
-  avatars: [
-    {
-      id: faker.string.uuid(),
-      filename: faker.image.url(),
-    },
-  ],
-};
+  avatars: [],
+}
 
-export const mockServiceUser: NonNullable<BaseFindUserServiceResponse> = {
-  ...mockRepositoryUser,
-  avatars: mapAvatarsToPaths(mockRepositoryUser.avatars),
-};
+export const mockVerificationCode = faker.string.numeric(6);
