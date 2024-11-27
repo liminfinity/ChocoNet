@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Geolocation, User } from '@prisma/client';
+import { AvatarDto } from './avatar.dto';
 
 class ContactDto implements Pick<User, 'email' | 'phone'> {
   @ApiProperty({
@@ -109,6 +110,18 @@ export class GetGuestProfileDto
     },
   })
   _count!: CountableValuesDto;
+
+  @ApiProperty({
+    description: 'User avatars',
+    type: [AvatarDto],
+    example: [
+      {
+        id: '1',
+        path: '/path/to/avatar.png',
+      },
+    ],
+  })
+  avatars!: AvatarDto[];
 }
 
 class GetAutorizedProfileDto extends GetGuestProfileDto {

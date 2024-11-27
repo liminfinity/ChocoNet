@@ -190,15 +190,13 @@ export class UserService {
 
     // Если текущий пользователь не авторизован
     if (!currentUserId) {
-      return {
-        ...omit(profileWithAvatarPathsAndLikeCounts, [
-          'geolocation',
-          'phoneVerification',
-          'email',
-          'phone',
-          'updatedAt',
-        ]),
-      };
+      return omit(profileWithAvatarPathsAndLikeCounts, [
+        'geolocation',
+        'phoneVerification',
+        'email',
+        'phone',
+        'updatedAt',
+      ]);
     }
 
     const { phoneVerification, phone, email, ...profileWithoutContact } =
