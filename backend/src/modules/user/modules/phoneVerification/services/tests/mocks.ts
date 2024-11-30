@@ -1,5 +1,5 @@
-import { BaseFindUserServiceResponse } from "@/modules/user/services/types";
-import { faker } from "@faker-js/faker";
+import { BaseFindUserServiceResponse } from '@/modules/user/services/types';
+import { faker } from '@faker-js/faker';
 
 export const mockUserId = faker.string.uuid();
 
@@ -19,6 +19,6 @@ export const mockUser: BaseFindUserServiceResponse = {
     lng: faker.location.longitude(),
   },
   avatars: [],
-}
+};
 
 export const mockVerificationCode = faker.string.numeric(6);

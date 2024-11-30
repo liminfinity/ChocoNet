@@ -4,7 +4,14 @@ import { UserFollowService } from '../userFollow.service';
 import { UserService } from '@/modules/user/services';
 import { ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
 import { UserFollowRepository } from '../../repositories';
-import { mockFollowerId, mockFollowingId, mockGetFollows, mockGetFollowsDto, mockQuery, mockUser } from './mocks';
+import {
+  mockFollowerId,
+  mockFollowingId,
+  mockGetFollows,
+  mockGetFollowsDto,
+  mockQuery,
+  mockUser,
+} from './mocks';
 
 describe('Сервис подписок', () => {
   let userFollowService: UserFollowService;
@@ -146,7 +153,6 @@ describe('Сервис подписок', () => {
 
   describe('Получить список подписок', () => {
     it('Должен вернуться список подписок для пользователя с правильными данными и пагинацией', async () => {
-
       userFollowRepository.getFollows.mockResolvedValue(mockGetFollows);
 
       const result = await userFollowService.getFollows(mockQuery, mockFollowerId);

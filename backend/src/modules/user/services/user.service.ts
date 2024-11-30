@@ -29,6 +29,9 @@ import { getPathToPastryMedia } from '@/modules/pastry/lib';
 import { JwtTokenService } from '@/modules/auth/modules';
 import { UpdateUserRepositoryRequest } from '../repositories/types';
 import { mapFilesToFilenames } from '@/common/lib';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { PREFIX, TTL } from '../constants';
+import { createRedisKey } from '@/common/modules/redis';
 
 @Injectable()
 export class UserService {
@@ -45,6 +48,7 @@ export class UserService {
    * @param pastryMediaService The service for the PastryMedia entity.
    * @param jwtTokenService The service for JWT tokens.
    * @param phoneVerificationService The service for phone verification.
+   * @param cacheManager The cache manager.
    */
   constructor(
     private readonly userRepository: UserRepository,
@@ -59,6 +63,7 @@ export class UserService {
     private readonly pastryMediaService: PastryMediaService,
     private readonly jwtTokenService: JwtTokenService,
     private readonly phoneVerificationService: PhoneVerificationService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   /**
@@ -69,16 +74,28 @@ export class UserService {
    *          or null if the user is not found.
    */
   async findByEmail(email: string): Promise<FindUserByEmailServiceResponse> {
+    const cachedUser = await this.cacheManager.get<string | undefined>(
+      createRedisKey(PREFIX, email),
+    );
+
+    if (cachedUser) {
+      return JSON.parse(cachedUser);
+    }
+
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
       return null;
     }
 
-    return {
+    const userWithAvatars = {
       ...user,
       avatars: mapAvatarsToPaths(user.avatars),
     };
+
+    this.cacheManager.set(createRedisKey(PREFIX, email), JSON.stringify(userWithAvatars), TTL);
+
+    return userWithAvatars;
   }
 
   /**
@@ -89,16 +106,28 @@ export class UserService {
    *          or null if the user is not found.
    */
   async findById(userId: string): Promise<FindUserByIdServiceResponse> {
+    const cachedUser = await this.cacheManager.get<string | undefined>(
+      createRedisKey(PREFIX, userId),
+    );
+
+    if (cachedUser) {
+      return JSON.parse(cachedUser);
+    }
+
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
       return null;
     }
 
-    return {
+    const userWithAvatars = {
       ...user,
       avatars: mapAvatarsToPaths(user.avatars),
     };
+
+    this.cacheManager.set(createRedisKey(PREFIX, userId), JSON.stringify(userWithAvatars), TTL);
+
+    return userWithAvatars;
   }
 
   /**
@@ -109,16 +138,28 @@ export class UserService {
    *          or null if the user is not found.
    */
   async findByNickname(nickname: string): Promise<FindByNicknameServiceResponse> {
+    const cachedUser = await this.cacheManager.get<string | undefined>(
+      createRedisKey(PREFIX, nickname),
+    );
+
+    if (cachedUser) {
+      return JSON.parse(cachedUser);
+    }
+
     const user = await this.userRepository.findByNickname(nickname);
 
     if (!user) {
       return null;
     }
 
-    return {
+    const userWithAvatars = {
       ...user,
       avatars: mapAvatarsToPaths(user.avatars),
     };
+
+    this.cacheManager.set(createRedisKey(PREFIX, nickname), JSON.stringify(userWithAvatars), TTL);
+
+    return userWithAvatars;
   }
 
   /**

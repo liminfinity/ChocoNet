@@ -25,9 +25,7 @@ describe('Сервис медиа кондитерских изделий', () =
   });
 
   describe('Поиск медиа по их ID', () => {
-
     it('Должно вернуться медиа для указанных ID', async () => {
-
       pastryMediaRepository.findByIds.mockResolvedValue(mockRepositoryPastryMedia);
 
       const result = await pastryMediaService.findByIds(mockMediaIds);
@@ -49,9 +47,7 @@ describe('Сервис медиа кондитерских изделий', () =
   });
 
   describe('Найти медиа по ID кондитерского изделия', () => {
-
     it('Должно вернуться медиа для указанного ID кондитерского изделия', async () => {
-
       pastryMediaRepository.findByPastryId.mockResolvedValue(mockRepositoryPastryMedia);
 
       const result = await pastryMediaService.findByPastryId(mockPastryId);
@@ -62,8 +58,7 @@ describe('Сервис медиа кондитерских изделий', () =
     });
 
     it('Если для кондитерского изделия нет медиа, должен вернуть пустой массив', async () => {
-
-      const mockResponse: FindPastryMediaByIdsResponse = []
+      const mockResponse: FindPastryMediaByIdsResponse = [];
 
       pastryMediaRepository.findByPastryId.mockResolvedValue(mockResponse);
 

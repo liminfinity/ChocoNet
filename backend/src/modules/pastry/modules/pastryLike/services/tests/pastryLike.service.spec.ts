@@ -3,7 +3,14 @@ import { GeolocationService } from '@/common/modules';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { mockGeolocation, mockPastryId, mockQuery, mockRepositoryGetPastries, mockRepositoryPastry, mockUserId } from './mocks';
+import {
+  mockGeolocation,
+  mockPastryId,
+  mockQuery,
+  mockRepositoryGetPastries,
+  mockRepositoryPastry,
+  mockUserId,
+} from './mocks';
 import { PastryLikeService } from '../pastryLike.service';
 import { PastryLikeRepository } from '../../repositories';
 
@@ -33,9 +40,9 @@ describe('Сервис лайков для кондитерских издели
   describe('Добавление лайка', () => {
     it('Должно выброситься исключение NotFoundException, если кондитерское изделие не найдено', async () => {
       pastryRepository.findById.mockResolvedValue(null);
-      await expect(
-        pastryLikeService.createLike(mockPastryId, mockUserId),
-      ).rejects.toThrow(new NotFoundException('Pastry not found'));
+      await expect(pastryLikeService.createLike(mockPastryId, mockUserId)).rejects.toThrow(
+        new NotFoundException('Pastry not found'),
+      );
     });
 
     it('Должно выброситься исключение ForbiddenException, если пользователь пытается поставить лайк на собственное изделие', async () => {
@@ -48,9 +55,9 @@ describe('Сервис лайков для кондитерских издели
     it('Должно выброситься исключение ConflictException, если пользователь уже поставил лайк этому изделию', async () => {
       pastryRepository.findById.mockResolvedValue(mockRepositoryPastry);
       pastryLikeRepository.isLiked.mockResolvedValue(true);
-      await expect(
-        pastryLikeService.createLike(mockPastryId, mockUserId),
-      ).rejects.toThrow(new ConflictException('You have already liked this pastry'));
+      await expect(pastryLikeService.createLike(mockPastryId, mockUserId)).rejects.toThrow(
+        new ConflictException('You have already liked this pastry'),
+      );
     });
 
     it('Успешное создание лайка', async () => {
@@ -58,22 +65,17 @@ describe('Сервис лайков для кондитерских издели
       pastryLikeRepository.isLiked.mockResolvedValue(false);
       pastryLikeRepository.create.mockResolvedValue(undefined);
 
-      await expect(
-        pastryLikeService.createLike(mockPastryId, mockUserId),
-      ).resolves.not.toThrow();
-      expect(pastryLikeRepository.create).toHaveBeenCalledWith(
-        mockPastryId,
-        mockUserId,
-      );
+      await expect(pastryLikeService.createLike(mockPastryId, mockUserId)).resolves.not.toThrow();
+      expect(pastryLikeRepository.create).toHaveBeenCalledWith(mockPastryId, mockUserId);
     });
   });
 
   describe('Удаление лайка', () => {
     it('Должно выброситься исключение NotFoundException, если кондитерское изделие не найдено', async () => {
       pastryRepository.findById.mockResolvedValue(null);
-      await expect(
-        pastryLikeService.deleteLike(mockPastryId, mockUserId),
-      ).rejects.toThrow(new NotFoundException('Pastry not found'));
+      await expect(pastryLikeService.deleteLike(mockPastryId, mockUserId)).rejects.toThrow(
+        new NotFoundException('Pastry not found'),
+      );
     });
 
     it('Должно выброситься исключение ForbiddenException, если пользователь пытается удалить лайк с собственного изделия', async () => {
@@ -86,9 +88,9 @@ describe('Сервис лайков для кондитерских издели
     it('Должен выбросить исключение ConflictException, если пользователь не ставил лайк этому изделию', async () => {
       pastryRepository.findById.mockResolvedValue(mockRepositoryPastry);
       pastryLikeRepository.isLiked.mockResolvedValue(false);
-      await expect(
-        pastryLikeService.deleteLike(mockPastryId, mockUserId),
-      ).rejects.toThrow(new ConflictException('You have not liked this pastry'));
+      await expect(pastryLikeService.deleteLike(mockPastryId, mockUserId)).rejects.toThrow(
+        new ConflictException('You have not liked this pastry'),
+      );
     });
 
     it('Успешное удаление лайка', async () => {
@@ -96,13 +98,8 @@ describe('Сервис лайков для кондитерских издели
       pastryLikeRepository.isLiked.mockResolvedValue(true);
       pastryLikeRepository.delete.mockResolvedValue(undefined);
 
-      await expect(
-        pastryLikeService.deleteLike(mockPastryId, mockUserId),
-      ).resolves.not.toThrow();
-      expect(pastryLikeRepository.delete).toHaveBeenCalledWith(
-        mockPastryId,
-        mockUserId,
-      );
+      await expect(pastryLikeService.deleteLike(mockPastryId, mockUserId)).resolves.not.toThrow();
+      expect(pastryLikeRepository.delete).toHaveBeenCalledWith(mockPastryId, mockUserId);
     });
   });
 

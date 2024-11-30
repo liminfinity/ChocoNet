@@ -1,8 +1,8 @@
-import { BaseFindUserServiceResponse } from "@/modules/user/services/types";
-import { faker } from "@faker-js/faker";
-import { FollowType, GetFollowQueriesDto, GetFollowsDto } from "../../dto";
-import { GetFollowsResponse } from "../../repositories/types";
-import { getLinkToAvatar } from "@/modules/user/lib";
+import { BaseFindUserServiceResponse } from '@/modules/user/services/types';
+import { faker } from '@faker-js/faker';
+import { FollowType, GetFollowQueriesDto, GetFollowsDto } from '../../dto';
+import { GetFollowsResponse } from '../../repositories/types';
+import { getLinkToAvatar } from '@/modules/user/lib';
 
 export const mockFollowerId = faker.string.uuid();
 
@@ -24,7 +24,7 @@ export const mockUser: BaseFindUserServiceResponse = {
     lng: faker.location.longitude(),
   },
   avatars: [],
-}
+};
 
 export const mockQuery: GetFollowQueriesDto = {
   name: '',
@@ -34,7 +34,7 @@ export const mockQuery: GetFollowQueriesDto = {
   pagination: {
     limit: 10,
     cursor: faker.string.uuid(),
-  }
+  },
 };
 
 export const mockGetFollows: GetFollowsResponse = [
@@ -44,26 +44,26 @@ export const mockGetFollows: GetFollowsResponse = [
     user: {
       avatar: {
         id: faker.string.uuid(),
-        filename: faker.image.url()
+        filename: faker.image.url(),
       },
       id: faker.string.uuid(),
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       nickname: faker.internet.username(),
-    }
-  }
-]
+    },
+  },
+];
 
 export const mockGetFollowsDto: GetFollowsDto = {
-  data: mockGetFollows.map(follow => ({
+  data: mockGetFollows.map((follow) => ({
     ...follow,
     user: {
       ...follow.user,
       avatar: follow.user.avatar && {
         id: follow.user.avatar.id,
         path: getLinkToAvatar(follow.user.avatar.filename),
-      }
-    }
+      },
+    },
   })),
   nextCursor: mockGetFollows[mockGetFollows.length - 1].id,
-}
+};

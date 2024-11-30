@@ -18,6 +18,23 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    container_name: redis
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    volumes:
+      - redis-data:/redis/data
+    command: ["redis-server", "--save", "", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
   backend:
     container_name: backend
     build:
@@ -28,11 +45,13 @@ services:
       - ./backend/.env.production
     ports:
       - "3000:3000"
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - app-network
+    depends_on:
+      db:
+          condition: service_healthy
+      redis:
+          condition: service_healthy
     command: ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
     
   proxy:
@@ -57,3 +76,4 @@ networks:
 
 volumes:
   db-data:
+  redis-data:

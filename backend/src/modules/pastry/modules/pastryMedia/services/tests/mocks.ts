@@ -7,7 +7,7 @@ export const mockRepositoryPastryMedia: FindPastryMediaByIdsResponse = [
   {
     id: faker.string.uuid(),
     filename: faker.image.url(),
-  }
-]
+  },
+];
 
 export const mockPastryId = faker.string.uuid();
