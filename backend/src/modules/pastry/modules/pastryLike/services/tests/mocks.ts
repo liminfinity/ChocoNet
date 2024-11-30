@@ -51,8 +51,8 @@ export const mockRepositoryGetPastries: GetPastriesResponse = [
       lng: faker.location.longitude(),
     },
     media: [],
-  }
-]
+  },
+];
 
 export const mockGeolocation: Awaited<ReturnType<GeolocationService['getGeolocationByCoords']>> = {
   city_district: faker.location.city(),
@@ -60,7 +60,7 @@ export const mockGeolocation: Awaited<ReturnType<GeolocationService['getGeolocat
   state: faker.location.state(),
   road: faker.location.street(),
   formatted: faker.location.streetAddress(),
-}
+};
 
 export const mockQuery: GetLikedPastryQueriesDto = {
   orderBy: 'createdAt',
@@ -80,4 +80,4 @@ export const mockQuery: GetLikedPastryQueriesDto = {
     lng: 0,
     radius: 0,
   },
-}
+};

@@ -108,7 +108,6 @@ describe('Сервис кондитерских изделий', () => {
   });
 
   describe('Кондитерское изделие принадлежит пользователю?', () => {
-
     beforeEach(() => {
       geolocationService.getGeolocationByCoords.mockResolvedValue(mockGeolocation);
     });
@@ -134,7 +133,6 @@ describe('Сервис кондитерских изделий', () => {
   });
 
   describe('Получение списка кондитерских изделий', () => {
-
     beforeEach(() => {
       geolocationService.getGeolocationByCoords.mockResolvedValue(mockGeolocation);
     });
@@ -161,7 +159,11 @@ describe('Сервис кондитерских изделий', () => {
       pastryRepository.getSimilarPastries.mockResolvedValue(mockGetSimilarPastries);
       pastryLikeService.isLiked.mockResolvedValue(true);
       pastryService.isPastryOwnedByUser = jest.fn().mockResolvedValue(false);
-      const result = await pastryService.getSimilarPastries(mockQuery, mockPastryId, faker.string.uuid());
+      const result = await pastryService.getSimilarPastries(
+        mockQuery,
+        mockPastryId,
+        faker.string.uuid(),
+      );
       expect(result.data[0]).toHaveProperty('isLiked');
     });
 
@@ -174,10 +176,9 @@ describe('Сервис кондитерских изделий', () => {
   });
 
   describe('Получение кондитерских изделий пользователя', () => {
-
     beforeEach(() => {
       geolocationService.getGeolocationByCoords.mockResolvedValue(mockGeolocation);
-    })
+    });
 
     it('Должен вернуться список кондитерских изделий пользователя', async () => {
       pastryRepository.getUserPastries.mockResolvedValue(mockGetUserPastries);
@@ -188,7 +189,11 @@ describe('Сервис кондитерских изделий', () => {
     it('Должна вернуться информация о лайке, если пользователь авторизован', async () => {
       pastryRepository.getUserPastries.mockResolvedValue(mockGetUserPastries);
       pastryLikeService.isLiked.mockResolvedValue(true);
-      const result = await pastryService.getUserPastries(mockQuery, mockUserId, faker.string.uuid());
+      const result = await pastryService.getUserPastries(
+        mockQuery,
+        mockUserId,
+        faker.string.uuid(),
+      );
       expect(result.data[0]).toHaveProperty('isLiked', true);
     });
   });

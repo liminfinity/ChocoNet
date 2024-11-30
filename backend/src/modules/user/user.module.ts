@@ -1,7 +1,7 @@
 import { forwardRef, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { UserRepository } from './repositories';
 import { UserService } from './services';
-import { GeolocationModule, HashModule } from '@/common/modules';
+import { GeolocationModule, HashModule, RedisModule } from '@/common/modules';
 import { AuthMiddleware } from '../auth';
 import { joinPaths } from '@/common/lib';
 import { ROUTER_PATHS } from './constants';
@@ -29,6 +29,7 @@ import { MulterConfigService } from '@/common/services';
     forwardRef(() => PastryMediaModule),
     forwardRef(() => PastryModule),
     JwtTokenModule,
+    RedisModule,
   ],
   providers: [UserRepository, UserService],
   controllers: [UserController],

@@ -31,6 +31,7 @@ import { getFormattedGeolocation } from '@/modules/pastry/lib';
 import { mapFilesToFilenames } from '@/common/lib';
 import { faker } from '@faker-js/faker';
 import omit from 'lodash.omit';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 jest.mock('@/modules/pastry/lib/getFormattedGeolocation', () => ({
   getFormattedGeolocation: jest.fn(),
@@ -46,10 +47,16 @@ describe('Сервис пользователей', () => {
   let userFollowService: DeepMocked<UserFollowService>;
   let jwtTokenService: DeepMocked<JwtTokenService>;
   let pastryMediaService: DeepMocked<PastryMediaService>;
+  let cacheManager: DeepMocked<Cache>;
 
   beforeAll(async () => {
+    const cacheManagerMock = {
+      get: jest.fn(),
+      set: jest.fn(),
+    } satisfies Partial<Cache>;
+
     const moduleFixtures: TestingModule = await Test.createTestingModule({
-      providers: [UserService],
+      providers: [UserService, { provide: CACHE_MANAGER, useValue: cacheManagerMock }],
     })
       .useMocker(createMock)
       .compile();
@@ -63,6 +70,7 @@ describe('Сервис пользователей', () => {
     userFollowService = moduleFixtures.get(UserFollowService);
     jwtTokenService = moduleFixtures.get(JwtTokenService);
     pastryMediaService = moduleFixtures.get(PastryMediaService);
+    cacheManager = moduleFixtures.get(CACHE_MANAGER);
   });
 
   afterEach(() => {
@@ -71,6 +79,7 @@ describe('Сервис пользователей', () => {
 
   describe('Найти пользователя по email', () => {
     it('Должен вернуть пользователя, если он найден', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
       userRepository.findByEmail.mockResolvedValue(mockUser);
 
       const result = await userService.findByEmail(mockUser.email);
@@ -83,6 +92,7 @@ describe('Сервис пользователей', () => {
     });
 
     it('Должен вернуть null, если пользователь не найден', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
       userRepository.findByEmail.mockResolvedValue(null);
 
       const result = await userService.findByEmail(mockUser.email);
@@ -93,6 +103,7 @@ describe('Сервис пользователей', () => {
 
   describe('Найти пользователя по id', () => {
     it('Должен вернуть пользователя по id', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
       userRepository.findById.mockResolvedValue(mockUser);
 
       const result = await userService.findById(mockUser.id);
@@ -102,6 +113,7 @@ describe('Сервис пользователей', () => {
     });
 
     it('Должен вернуть null, если пользователь не найден', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
       userRepository.findById.mockResolvedValue(null);
 
       const result = await userService.findById(mockUser.id);
@@ -112,6 +124,7 @@ describe('Сервис пользователей', () => {
 
   describe('Найти пользователя по nickname', () => {
     it('Должен вернуть пользователя по nickname', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
       userRepository.findByNickname.mockResolvedValue(mockUser);
 
       const result = await userService.findByNickname(mockUser.nickname);
@@ -121,6 +134,7 @@ describe('Сервис пользователей', () => {
     });
 
     it('Должен вернуть null, если пользователь не найден', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
       userRepository.findByNickname.mockResolvedValue(null);
 
       const result = await userService.findByNickname(mockUser.nickname);
@@ -160,9 +174,7 @@ describe('Сервис пользователей', () => {
       userRepository.getProfile.mockResolvedValue(mockProfile);
       pastryLikeService.getReceivedLikesCount.mockResolvedValue(mockOtherProfile._count.likes);
 
-      (getFormattedGeolocation as jest.Mock).mockResolvedValue(
-        mockOtherProfile.geolocation,
-      );
+      (getFormattedGeolocation as jest.Mock).mockResolvedValue(mockOtherProfile.geolocation);
 
       userFollowService.isFollowing.mockResolvedValue(mockOtherProfile.isFollowing);
 
@@ -176,9 +188,7 @@ describe('Сервис пользователей', () => {
       userRepository.getProfile.mockResolvedValue(mockProfile);
       pastryLikeService.getReceivedLikesCount.mockResolvedValue(mockSelfProfile._count.likes);
 
-      (getFormattedGeolocation as jest.Mock).mockResolvedValue(
-        mockSelfProfile.geolocation,
-      );
+      (getFormattedGeolocation as jest.Mock).mockResolvedValue(mockSelfProfile.geolocation);
 
       const result = await userService.getProfile(mockUser.id, mockUser.id);
 
